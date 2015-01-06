@@ -1,0 +1,58 @@
+<!DOCTYPE html> 
+<html>
+
+<head>
+  <title>SHARPPy - Sounding and Hodograph Analysis and Research in Python</title>
+  <meta name="description" content="website description" />
+  <meta name="keywords" content="website keywords, website keywords" />
+  <meta http-equiv="content-type" content="text/html; charset=windows-1252" />
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+  <!-- modernizr enables HTML5 elements and feature detects -->
+  <script type="text/javascript" src="js/modernizr-1.5.min.js"></script>
+</head>
+
+<body>
+  <div id="main">
+    <header>
+	  <div id="banner">
+	    <div id="welcome">
+	      <h2>SHARPPy</h2>
+        <h3>Sounding and Hodograph Analysis and Research in Python</h3>
+	    </div><!--close welcome-->			  	
+	  </div><!--close banner-->	
+	</header>
+	
+	<nav>
+	  <div id="menubar">
+        <ul id="nav">
+          <li class="current"><a href="index.html">About</a></li>
+          <li><a href="references.html">References</a></li>
+          <li><a href="documentation.html">Documentation</a></li>
+          <li><a href="contributors.html">Contributors</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </div><!--close menubar-->	
+    </nav>	
+    
+	<div id="site_content">	
+	 
+	  <div id="content">
+        <div class="content_item" align=center>
+        <img src="sharppy.png" alt="image1" width=900 height=600/>
+
+		  <h1>SHARPPy is an open source package for performing analyses on sounding and hodograph datasets.  </h1> 
+          <p>SHARPPy is a collection of open source sounding and hodograph analysis routines, a sounding plotting package, and an interactive application for analyzing real-time soundings all written in Python.  It was developed to provide the atmospheric science community a free and consistent source of routines for convective indices.  SHARPPy is constantly updated and vetted by professional meteorologists and climatologists within the  scientific community to help maintain a standard source of sounding routines.  </p>   				  
+      </div><!--close content-->   
+	
+	</div><!--close site_content-->  	
+  
+
+  
+  </div><!--close main-->
+  
+  <!-- javascript at the bottom for fast page loading -->
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" src="js/image_slide.js"></script>
+  
+</body>
+</html>
