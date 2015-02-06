@@ -2,17 +2,18 @@
 <html>
 
 <head>
-  <title>SHARPPy - Sounding and Hodograph Analysis and Research in Python</title>
+  <title>SHARPpy Documentation</title>
   <meta name="description" content="website description" />
   <meta name="keywords" content="website keywords, website keywords" />
   <meta http-equiv="content-type" content="text/html; charset=windows-1252" />
   <link rel="stylesheet" type="text/css" href="css/style.css" />
   <!-- modernizr enables HTML5 elements and feature detects -->
   <script type="text/javascript" src="js/modernizr-1.5.min.js"></script>
+
 </head>
 
 <body>
-<a href="https://github.com/sharppy/SHARPpy"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
+<a href="https://github.com/you"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/e7bbb0521b397edbd5fe43e7f760759336b5e05f/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f677265656e5f3030373230302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_green_007200.png"></a>
   <div id="main">
     <header>
 	  <div id="banner">
@@ -38,8 +39,46 @@
 	<div id="site_content">	
 	 
 	  <div id="content">
-        <div class="content_item" align=center>
+        <div class="content_item" align=center><div class="thumbnail"><h2>Available GUI Insets:</h2>
+<img src='inset_stp.png'>
+<p align="center">STP Ingredients and EF Probabilties for diagnosing tornadic environment ingredients.</p>
+<img src='inset_sars.png'>
+<p align="center">Sounding Analogue Retrieval System to compare soundings with previous severe weather environments.</p>
+<img src='inset_condstp.png'>
+<p align="center">Conditional Tornado Intensity Probabilities</p>
+<img src='inset_vrot.png'>
+<p align="center">Conditional WSR-88D 0.5 Deg. Azimuthal Shear Tornado Intensity Probabilities</p>
+<img src='inset_ship.png'>
+<p align="center">Expected Hail Sizes based on the SHIP parameter.</p>
+<img src='inset_fire.png'>
+<p align="center">Fire weather parameters and guidance.</p>
+
+ </div>
         <h1 align=left>Required Packages</h1>
+                       <style type="text/css">
+.thumbnail {
+   float: right;
+   width:300px;
+   height:1800px;
+   padding-left: 20px;
+   padding-right: 20px;
+   background-color: #484848 ;
+   color: #ffffff;
+   text-align: center;
+   border-radius: 15px;
+}
+
+.thumbnail img {
+    width:298px;
+    height:200px;
+  margin:0 auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+</style>
+
+
 <p align=left>Required packages to run SHARPpy:
 <ul align=left>
 <li><a href=http://qt-project.org/wiki/PySide>PySide</a> (for plotting)
@@ -54,17 +93,19 @@ Both packages can be obtained online or through the <a href="https://store.conti
 </p>
 
                 <h1 align=left>Installing SHARPpy </h1> 
-                <p align=left> To install SHARPpy in your Python directory (using the SHARPy codebase):</p>
+                <p align=left> To install SHARPpy in your Python directory (using the SHARPpy codebase):</p>
                 <ol align=left>
-                        <li>Download the SHARPPy package from GitHub by typing the following command in your command prompt:
-                        <br>git clone http://github.com/sharppy
+                        <li>Download the SHARPpy <a href=https://github.com/sharppy/SHARPpy>ZIP file</a> or clone SHARPpy from GitHub by typing the following command in your command prompt:
+                        <br>git clone http://github.com/sharppy/SHARPpy.
                         </li>
-                        <li>Unzip the SHARPpy zip file.</li>
+                        <li>If you downloaded the SHARPpy zip file, unzip it.</li>
                         <li>cd into the directory and type in:<br>
                         python setup.py install
                         </li>
                         <li>Test the installation by loading up a Python terminal and typing:<br>
                         import sharppy</li>
+                        <li>To run the SHARPpy GUI and access observed and model forecast soundings, cd into the runsharp folder and type in:
+                        <br>python full_gui.py</li>
                 </ol>        
                         <h1 align=left>Documentation </h1> 
           <p align=left>Documentation for the SHARPpy project can be found here.</p>   				  

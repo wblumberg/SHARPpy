@@ -32,16 +32,16 @@ img
 
 h1, h2, h3, h4, h5, h6 
 { font: bold 175% 'News Cycle', Arial, sans-serif;
-  color: #33ccff ;
+  color: #fff;
   text-shadow: 1px 1px #000;
   letter-spacing: -1px;
   margin: 0 0 10px 0;}
 
 h2
-{ font: bold 165% 'News Cycle', Arial, sans-serif; color: #00cc33 ;}
+{ font: bold 165% 'News Cycle', Arial, sans-serif;}
 
 h3
-{ font: bold 130% 'News Cycle', Arial, sans-serif; color: #cc3333 ;}
+{ font: bold 130% 'News Cycle', Arial, sans-serif;}
 
 h4, h5, h6
 { margin: 0;
@@ -76,9 +76,7 @@ ul
   font-size: 100%;}
 
 li
-{ color: #FFF ;
-  margin-top: .5em;
-} 
+{ color: #FFF } 
 
 ol
 { margin: 8px 0 22px 20px;}
