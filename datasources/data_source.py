@@ -7,18 +7,43 @@ import urllib
 import available
 
 # Move this to a function in decoder.py
+# Import all the decoder objects needed.
 from sharppy.io.buf_decoder import BufDecoder
 from sharppy.io.spc_decoder import SPCDecoder
+from sharppy.io.pecan_decoder import PECANDecoder
 
+# This is a dictionary that lists all the decoders
+# and their relationship to different file format tags
 _decoder = {
     'spc':SPCDecoder,
     'bufkit':BufDecoder,
+    # Need to add in new SHARPpy/PECAN decoder.
+    'pecan': PECANDecoder    
 }
 # End move
 
 # TAS: Comment this file and available.py
 
 def loadDataSources(ds_dir='../datasources'):
+    '''
+        loadDataSources
+
+        A function that finds all of the .xml files listed
+        within the ../datasources directory and parses them.
+        As it parses them, it creates a dictionary of DataSource
+        objects from each source listed within the .xml file.
+
+        Parameters
+        ----------
+        ds_dir : string
+            The path to the data sources directory where the .xml files are kept.
+
+        Returns
+        -------
+        ds : dictionary
+            A dictionary where the keys are each 'name' tag listed in the .xml file
+            and the value is a DataSource object.
+    '''
     files = glob.glob(ds_dir + '/*.xml')
     ds = {}
     for ds_file in files:

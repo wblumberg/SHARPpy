@@ -588,6 +588,13 @@ class MainWindow(QWidget):
             msgbox.setIcon(QMessageBox.Critical)
             msgbox.exec_()
         else:
+            print profs
+            print dates
+            print model
+            print disp_name
+            print run
+            print prof_idx
+            print fhours
             self.skew = SkewApp(profs, dates, model, location=disp_name,
                 run=run, idx=prof_idx, fhour=fhours)
             self.skew.show()

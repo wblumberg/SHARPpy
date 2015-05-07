@@ -216,7 +216,7 @@ class MapWidget(QtGui.QWidget):
         self.load_readout.move(10, self.height() - 25)
 
         getPoints = lambda: self.cur_source.getAvailableAtTime(self.current_time)
-
+        print getPoints
         def update(points):
             self.points = points[0]
 

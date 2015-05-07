@@ -1,0 +1,3 @@
+icao,iata,synop,name,state,country,lat,lon,elev,priority,srcid
+,,,Fixed PISA 1,KS,US,35,-97,0,7,FP1
+KOUN,OUN,72357,Norman/Max Westheimer,OK,US,35.246,-97.472,357,3,oun
