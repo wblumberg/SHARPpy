@@ -36,9 +36,9 @@ https://github.com/sharppy/SHARPpy/issues
 =======================================================================
 ### Installing SHARPpy
 
-SHARPpy can be installed on _Windows_, _Mac OS X_, and _Linux_, as all these platforms can use the Anaconda Python Distribution.  SHARPpy may run on other operating systems, but this has not been tested by the developers.  Running SHARPpy requires a.) the Python interpreter and b.) additional Python libraries.  Although there are multiple ways to meet these requirements, we recommend you install the _Python 2.7_ cross-platform Anaconda Python Distribution.  SHARPpy is primarily tested with the Anaconda Python Distribution from Continuum Analytics.  
+SHARPpy can be installed on _Windows_, _Mac OS X_, and _Linux_, as all these platforms can run Python programs.  SHARPpy may run on other operating systems, but this has not been tested by the developers.  Chances are if it can run Python, it can run SHARPpy.  Running SHARPpy requires a.) the Python interpreter and b.) additional Python libraries.  Although there are multiple ways to meet these requirements, we recommend you install the _Python 2.7_ Anaconda Python Distribution from Continuum Analytics.  SHARPpy is primarily tested using this distribution.  
 
-Anaconda can be downloaded here: https://store.continuum.io/cshop/anaconda/
+The Anaconda Python Distribution can be downloaded here: https://store.continuum.io/cshop/anaconda/
 
 Additional ways to meet these requirements may include the Enthought Python Distribution, MacPorts, or Brew, but as of this moment we cannot provide support for these methods.
 
