@@ -2,7 +2,7 @@
 
 ######Sounding/Hodograph Analysis and Research Program in Python
 
-SHARPpy is a collection of open source sounding and hodograph analysis routines, a sounding plotting package, and an interactive application for analyzing real-time soundings all written in Python. It was developed to provide the atmospheric science community a free and consistent source of sounding analysis routines. SHARPpy is constantly updated and vetted by professional meteorologists and climatologists within the scientific community to help maintain a standard source of sounding routines.
+SHARPpy is a collection of open source sounding and hodograph analysis routines, a sounding plotting package, and an interactive, __cross-platform__ application for analyzing real-time soundings all written in Python. It was developed to provide the atmospheric science community a free and consistent source of sounding analysis routines. SHARPpy is constantly updated and vetted by professional meteorologists and climatologists within the scientific community to help maintain a standard source of sounding routines.
 
 **REMINDER: You must re-run the "python setup.py install" script for updates to take hold***
 
@@ -36,16 +36,19 @@ https://github.com/sharppy/SHARPpy/issues
 =======================================================================
 ### Installing SHARPpy
 
-Required Packages:
+SHARPpy can be installed on _Windows_, _Mac OS X_, and _Linux_, as all these platforms can use the Anaconda Python Distribution.  SHARPpy may run on other operating systems, but this has not been tested by the developers.  Running SHARPpy requires a.) the Python interpreter and b.) additional Python libraries.  There are multiple ways to meet these requirements, however we recommend you install the cross-platform Anaconda Python Distribution to meet these requirements.  SHARPpy is primarily tested and used with the Anaconda Python Distribution from Continuum Analytics.  We recommend you download the Anaconda distribution that contains Python 2.7.  SHARPpy is not Python 3 compatable yet, and all functions may not work.
+
+Anaconda can be downloaded here: https://store.continuum.io/cshop/anaconda/
+
+Additional ways to meet these requirements may include the Enthought Python Distribution, MacPorts, or Brew, but as of this moment we cannot provide support for these methods.
+
+__Required Python Packages/Libraries:__
 
 - NumPy
 
 - PySide
 
-SHARPpy is primarily tested and used with the Anaconda Python Distribution
-from Continuum Analytics. We recommend you use Python 2.7 instead of Python 3 as SHARPpy is not Python 3 compatable yet.  Anaconda can be downloaded here: https://store.continuum.io/cshop/anaconda/
-
-Since SHARPpy requires the PySide package, you will need to install it.  If you choose to use the Anaconda distribution, PySide can be installed through the Anaconda package manager by typing:
+Since SHARPpy requires the PySide and Numpy packages, you will need to install them.  If you choose to use the Anaconda distribution, Numpy comes installed by default.  PySide can be installed through the Anaconda package manager by typing:
 
     conda install PySide
 
