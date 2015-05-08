@@ -104,9 +104,9 @@ def _available_psu(model, nam=False, off=False):
         model : string
             the name of the forecast model
         nam : boolean (default: false)
-            I have no idea what this does
+            Specifies whether or not this is the NAM or 4km NAM 
         off : boolean (default: false)
-            Also don't know what this means.
+            Specifies whether or not this is an off-hour run
     '''
     if model == '4km nam': model = 'nam4km'
 
@@ -133,7 +133,6 @@ def _availableat_oupecan(dt):
     text = url_obj.read()
     dt_string = datetime.strftime(dt, '%Y%m%d%H')
     stns = re.findall("([\w]{3})_%s.txt" % dt_string, text)
-    print np.unique(stns)
     return np.unique(stns)
 
 def _available_nssl(ens=False):

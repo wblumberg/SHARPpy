@@ -2,7 +2,7 @@
 <sourcelist>
     <datasource name="PECAN Ensemble" ensemble="true">
             <outlet name="ou_pecan" url="http://weather.ou.edu/~map/real_time_data/{date}{cycle}/soundings/{srcid}_20{date}{cycle}.txt" format="pecan" >
-            <time range="36" delta="1" offset="0" delay="1" cycle="12" archive="168"/>
+            <time range="24" delta="1" offset="0" delay="1" cycle="12" archive="168"/>
             <points csv="pecan.csv" />
         </outlet>
     </datasource>
