@@ -36,7 +36,7 @@ https://github.com/sharppy/SHARPpy/issues
 =======================================================================
 ### Installing SHARPpy
 
-SHARPpy can be installed on _Windows_, _Mac OS X_, and _Linux_, as all these platforms can use the Anaconda Python Distribution.  SHARPpy may run on other operating systems, but this has not been tested by the developers.  Running SHARPpy requires a.) the Python interpreter and b.) additional Python libraries.  There are multiple ways to meet these requirements, however we recommend you install the cross-platform Anaconda Python Distribution to meet these requirements.  SHARPpy is primarily tested and used with the Anaconda Python Distribution from Continuum Analytics.  We recommend you download the Anaconda distribution that contains Python 2.7.  SHARPpy is not Python 3 compatable yet, and all functions may not work.
+SHARPpy can be installed on _Windows_, _Mac OS X_, and _Linux_, as all these platforms can use the Anaconda Python Distribution.  SHARPpy may run on other operating systems, but this has not been tested by the developers.  Running SHARPpy requires a.) the Python interpreter and b.) additional Python libraries.  Although there are multiple ways to meet these requirements, we recommend you install the _Python 2.7_ cross-platform Anaconda Python Distribution.  SHARPpy is primarily tested with the Anaconda Python Distribution from Continuum Analytics.  
 
 Anaconda can be downloaded here: https://store.continuum.io/cshop/anaconda/
 
@@ -71,10 +71,11 @@ A video tutorial for installing on Windows: https://dl.dropboxusercontent.com/u/
 =======================================================================
 ### Running the SHARPpy GUI
 
-To run the SHARPpy GUI and interact with real-time observed and forecast soundings, copy the runsharp folder to the location at which you wish to run the program. Navigate to that
-folder in your terminal and run the following command:
+To run the SHARPpy GUI and interact with real-time observed and forecast soundings, navigate to the `runsharp/` folder contained within your SHARPpy directory.  Once there, run the following command:
 
     python full_gui.py
+
+As of May 8th, 2015, moving the `runsharp/` folder or full_gui.py will break your SHARPpy program.  This issue will be fixed in a future release.
 
 =======================================================================
 ### Scripting with SHARPpy
