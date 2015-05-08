@@ -71,11 +71,11 @@ A video tutorial for installing on Windows: https://dl.dropboxusercontent.com/u/
 =======================================================================
 ### Running the SHARPpy GUI
 
-To run the SHARPpy GUI and interact with real-time observed and forecast soundings, navigate to the `runsharp/` folder contained within your SHARPpy directory.  Once there, run the following command:
+To run the SHARPpy GUI and interact with real-time observed and forecast soundings, navigate to the `runsharp/` folder contained within the SHARPpy directory you downloaded.  Once there, run the following command:
 
     python full_gui.py
 
-As of May 8th, 2015, moving the `runsharp/` folder or full_gui.py will break your SHARPpy program.  This issue will be fixed in a future release.
+As of May 8th, 2015, we recommend you do not move the `runsharp/` folder or `full_gui.py` from its original downloaded location. This will break your SHARPpy program. This "feature" will be fixed in a future release.
 
 =======================================================================
 ### Scripting with SHARPpy
