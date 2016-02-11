@@ -261,7 +261,7 @@ def satlift(p, thetam):
     #if type(p) == type(np.array([p])) or type(thetam) == type(np.array([thetam])):
     if np.fabs(p - 1000.) - 0.001 <= 0: return thetam
     eor = 999
-    while np.fabs(eor) - 0.1 > 0:
+    while np.fabs(eor) - 0.01 > 0:
         if eor == 999:                  # First Pass
             pwrp = np.power((p / 1000.),ROCP)
             t1 = (thetam + ZEROCNK) * pwrp - ZEROCNK
