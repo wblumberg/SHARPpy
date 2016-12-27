@@ -33,8 +33,9 @@ from datasources import data_source
 from utils.async import AsyncThreads
 from utils.progress import progress
 
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 import datetime as date
 from functools import wraps, partial
 import cProfile
