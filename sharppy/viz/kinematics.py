@@ -1,5 +1,5 @@
 import numpy as np
-from PySide import QtGui, QtCore
+from PySide2 import QtGui, QtCore, QtWidgets
 import sharppy.sharptab as tab
 from sharppy.viz.barbs import drawBarb
 from sharppy.sharptab.constants import *
@@ -10,7 +10,7 @@ import platform
 
 __all__ = ['backgroundKinematics', 'plotKinematics']
 
-class backgroundKinematics(QtGui.QFrame):
+class backgroundKinematics(QtWidgets.QFrame):
     '''
     Handles drawing the background frame.
     '''

@@ -1,16 +1,17 @@
 import numpy as np
-from PySide import QtGui, QtCore
+from PySide2 import QtGui, QtCore, QtWidgets
 import sharppy.sharptab as tab
 from sharppy.viz.draggable import Draggable
 from sharppy.sharptab.profile import Profile, create_profile
 from sharppy.sharptab.constants import *
-from PySide.QtGui import *
-from PySide.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtCore import *
+from PySide2.QtWidgets import *
 
 __all__ = ['backgroundHodo', 'plotHodo']
 
 
-class backgroundHodo(QtGui.QFrame):
+class backgroundHodo(QtWidgets.QFrame):
     '''
     Handles the plotting of the backgroun frame onto
     a QPixmap. Inherits from the QtGui.QFrame object.

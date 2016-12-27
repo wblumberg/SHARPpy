@@ -1,7 +1,8 @@
 import numpy as np
-from PySide import QtGui, QtCore
-from PySide.QtCore import *
-from PySide.QtGui import *
+from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 import sharppy.sharptab as tab
 from sharppy.sharptab.constants import *
 import datetime
@@ -12,7 +13,7 @@ import platform
 
 __all__ = ['backgroundText', 'plotText']
 
-class backgroundText(QtGui.QFrame):
+class backgroundText(QtWidgets.QFrame):
     '''
     Handles drawing the background frame onto a QPixmap.
     Inherits a QtGui.QFrame Object.

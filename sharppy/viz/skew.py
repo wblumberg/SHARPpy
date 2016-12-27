@@ -4,16 +4,17 @@ from sharppy.sharptab.constants import *
 from sharppy.sharptab.profile import Profile, create_profile
 from sharppy.viz.draggable import Draggable
 from sharppy.viz.barbs import drawBarb
-from PySide import QtGui, QtCore
-from PySide.QtGui import *
-from PySide.QtCore import *
-from PySide.QtOpenGL import *
+from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
+from PySide2.QtCore import *
+from PySide2.QtOpenGL import *
 
 from datetime import datetime, timedelta
 
 __all__ = ['backgroundSkewT', 'plotSkewT']
 
-class backgroundSkewT(QtGui.QWidget):
+class backgroundSkewT(QtWidgets.QWidget):
     def __init__(self, plot_omega=False):
         super(backgroundSkewT, self).__init__()
         self.plot_omega = plot_omega
