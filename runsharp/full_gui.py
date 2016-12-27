@@ -488,7 +488,7 @@ class Picker(QWidget):
 
             if self.data_sources[model].getForecastHours() == [ 0 ]:
                 prof_idx = [ 0 ]
-
+	    print "Program is going to load the data."
             ret = loadData(self.data_sources[model], self.loc, run, prof_idx, ntry=ntry)
 
             if isinstance(ret[0], Exception):
