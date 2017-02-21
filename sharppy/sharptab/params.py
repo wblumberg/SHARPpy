@@ -205,6 +205,7 @@ class Parcel(object):
         self.pres = ma.masked # Parcel beginning pressure (mb)
         self.tmpc = ma.masked # Parcel beginning temperature (C)
         self.dwpc = ma.masked # Parcel beginning dewpoint (C)
+        self.thetae = ma.masked # Parcel equivalent potential temperature (C)
         self.ptrace = ma.masked # Parcel trace pressure (mb)
         self.ttrace = ma.masked # Parcel trace temperature (C)
         self.blayer = ma.masked # Pressure of the bottom of the layer the parcel is lifted (mb)
@@ -246,6 +247,7 @@ class Parcel(object):
         self.cappres = ma.masked # Cap strength pressure (mb)
         self.bmin = ma.masked # Buoyancy minimum in profile (C)
         self.bminpres = ma.masked # Buoyancy minimum pressure (mb)
+        self.bminhght = ma.masked # Buoyancy minimum height (m AGL)
         for kw in kwargs: setattr(self, kw, kwargs.get(kw))
 
 def hgz(prof):
@@ -1340,9 +1342,11 @@ def cape(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     pres = kwargs.get('pres', pcl.lplvals.pres)
     tmpc = kwargs.get('tmpc', pcl.lplvals.tmpc)
     dwpc = kwargs.get('dwpc', pcl.lplvals.dwpc)
+    thetae = kwargs.get('thetae', pcl.thetae)
     pcl.pres = pres
     pcl.tmpc = tmpc
     pcl.dwpc = dwpc
+    pcl.thetae = thetae
     totp = 0.
     totn = 0.
     tote = 0.
@@ -1473,7 +1477,7 @@ def cape(prof, pbot=None, ptop=None, dp=-1, **kwargs):
             if pcl.bplus == 0: pcl.bminus = 0.
     return pcl
 
-def parcelx(prof, pbot=None, ptop=None, dp=-1, **kwargs):
+def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     '''
         Lifts the specified parcel, calculated various levels and parameters from
         the profile object. B+/B- are calculated based on the specified layer.
@@ -1523,6 +1527,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     pcl.pres = pres
     pcl.tmpc = tmpc
     pcl.dwpc = dwpc
+    pcl.thetae = thermo.thetae(pcl.pres, pcl.tmpc, pcl.dwpc, method=method)
     cap_strength = -9999.
     cap_strengthpres = -9999.
     li_max = -9999.
@@ -1556,7 +1561,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     ptrace = [pe1]
     
     # Lift parcel and return LCL pres (hPa) and LCL temp (C)
-    pe2, tp2 = thermo.drylift(pres, tmpc, dwpc)
+    pe2, tp2 = thermo.drylift(pres, tmpc, dwpc, method=method)
     blupper = pe2
     h2 = interp.hght(prof, pe2)
     te2 = interp.vtmp(prof, pe2)
@@ -1583,7 +1588,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     tmp_env_dwpt = interp.dwpt(prof, pp)
     tv_env = thermo.virtemp(pp, tmp_env_theta, tmp_env_dwpt)
     tmp1 = thermo.virtemp(pp, theta_parcel, thermo.temp_at_mixrat(blmr, pp))
-    tdef = (tmp1 - tv_env) / thermo.ctok(tv_env)
+    tdef = (tmp1 - tv_env) / thermo.ctok(tv_env) # (T_p - T_e)/(T_e)
 
 
     tidx1 = np.arange(0, len(tdef)-1, 1)
@@ -1629,9 +1634,10 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     pe1 = pbot
     h1 = interp.hght(prof, pe1)
     te1 = interp.vtmp(prof, pe1)
-    tp1 = thermo.wetlift(pe2, tp2, pe1)
-    lyre = 0
-    lyrlast = 0
+    tp1 = tp2
+    #tp1 = thermo.wetlift(pe2, tp2, pe1, pcl.thetae, method=method)
+    lyre = 0 # layer energy
+    lyrlast = 0 # energy of the last layer considered
 
     iter_ranges = np.arange(lptr, prof.pres.shape[0])
     ttraces = ma.zeros(len(iter_ranges))
