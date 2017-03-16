@@ -343,7 +343,7 @@ def satlift(p, thetam):
     return t2 - eor
 
 
-def wetlift(p, t, p2, method='wobus'):
+def wetlift(p, t, p2, theta_e=-9999, method='wobus'):
     '''
     Lifts a parcel moist adiabatically to its new level.
 
@@ -355,18 +355,27 @@ def wetlift(p, t, p2, method='wobus'):
         Temperature of initial parcel (C)
     p2 : number
         Pressure of final level (hPa)
+    theta_e : number (optional)
+        Equivalent potential temperature of the parcel (C)
+    method : method to calculate the pseudoadiabat
+        wobus - use old NSHARP method
+        bolton - use RDJ 2008 method
 
     Returns
     -------
     Temperature (C)
 
     '''
-    thta = theta(p, t, 1000.)
-    if thta is np.ma.masked or p2 is np.ma.masked:
-        return np.ma.masked
-    thetam = thta - wobf(thta) + wobf(t)
-    return satlift(p2, thetam)
-
+    if method == 'wobus':
+        thta = theta(p, t, 1000.)
+        if thta is np.ma.masked or p2 is np.ma.masked:
+            return np.ma.masked
+        thetam = thta - wobf(thta) + wobf(t)
+        return satlift(p2, thetam)
+    else:
+        if np.atleast_1d(theta_e).any() == -9999:
+            thetae = thetae(p, t, t, method=method)
+        return wetlift_rdj(np.atleast_1d(theta_e), p2) - C 
 
 def lifted(p, t, td, lev, method='wobus'):
     '''
@@ -583,7 +592,6 @@ def ftok(t):
     return ctok(ftoc(t))
 
 # RDJ Wetlift equations
-
 def _es(t):
     '''
     Private wrapper function to compute vapor pressure for Bolton (1980) and RDJ calculations.
@@ -845,11 +853,13 @@ pres = np.arange(1000,5,-5)
 the = the * np.ones(len(pres))
 from datetime import datetime
 t = datetime.now()
-tw = wetlift_rdj(the, pres) - 273.15
+tw = wetlift(1000,30, pres, theta_e=the, method='bolton')
 print "Time for RDJ2008:", datetime.now() - t
+
 t = datetime.now()
 for p in pres:
-    lifted(1000, 30, 20, p)
+    tw = wetlift(1000,30, p, theta_e=the, method='wobus')
+print tw 
 print "Time for Wobus:", datetime.now() - t
 print len(pres)
 """
