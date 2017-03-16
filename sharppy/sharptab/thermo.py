@@ -828,7 +828,7 @@ def wetlift_rdj(theta_e, p):
     idx = np.argmin(np.abs(np.asarray([quad_tau_n1, quad_tau_n2]) - lin_tau_n2), axis=0)
     pseudoadiabat = np.asarray([quad_tau_n1, quad_tau_n2])[idx[0], :]
     return pseudoadiabat
-
+"""
 print "Bolton ThetaE:", thetae(1000, -40, -40, method='bolton')
 print "Wobus ThetaE:", thetae(1000, -40, -40, method='wobus')
 
@@ -852,3 +852,4 @@ for p in pres:
     lifted(1000, 30, 20, p)
 print "Time for Wobus:", datetime.now() - t
 print len(pres)
+"""
