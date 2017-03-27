@@ -9,7 +9,6 @@ import numpy as np
 import numpy.ma as ma
 from StringIO import StringIO
 
-spc_file = open('14061619.OAX', 'r').read()
 G = 9.81 
 
 def parseSPC(spc_file):
@@ -34,11 +33,6 @@ def parseSPC(spc_file):
     p, h, T, Td, wdir, wspd = np.genfromtxt( sound_data, delimiter=',', comments="%", unpack=True )
 
     return p, h, T, Td, wdir, wspd
-
-pres, hght, tmpc, dwpc, wdir, wspd = parseSPC(spc_file)
-
-prof = profile.create_profile(profile='default', pres=pres, hght=hght, tmpc=tmpc, \
-                                    dwpc=dwpc, wspd=wspd, wdir=wdir, missing=-9999, strictQC=True)
 
 def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     '''
@@ -132,7 +126,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     tp1 = thermo.virtemp(pres, tmpc, dwpc)
     
     # Lift parcel and return LCL pres (hPa) and LCL temp (C)
-    pe2, tp2 = thermo.drylift(pres, tmpc, dwpc)
+    pe2, tp2 = thermo.drylift(pres, tmpc, dwpc, method=method)
     blupper = pe2 # pressure at the LCL
     h2 = interp.hght(prof, pe2)
     te2 = interp.vtmp(prof, pe2)
@@ -223,7 +217,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     tv_pcl = thermo.virtemp(ptraces, ttraces, ttraces) # Covert the parcel temperature into virtual temperature space
     B = (tv_pcl - tv_env) / thermo.ctok(tv_env) # buoyancy profile along the pseudoadiabat
 
-    print "i     pe2    tp2     pe1    te2  lyre lyrlast tote totp   totn"      
+    #print "i     pe2    tp2     pe1    te2  lyre lyrlast tote totp   totn"      
     for i in iter_ranges:
         if not utils.QC(prof.tmpc[i]): continue
         pe2 = ptraces[i-iter_ranges[0]]
@@ -607,11 +601,25 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     
     return pcl
 
+spc_file = open('14061619.OAX', 'r').read()
+pres, hght, tmpc, dwpc, wdir, wspd = parseSPC(spc_file)
+
+prof = profile.create_profile(profile='default', pres=pres, hght=hght, tmpc=tmpc, \
+                                    dwpc=dwpc, wspd=wspd, wdir=wdir, missing=-9999, strictQC=True)
 
 from datetime import datetime
 dt = datetime.now()
-print params.parcelx(prof, flag=4).bplus
+pcl1 = params.parcelx(prof, flag=4)
+print pcl1.bplus, pcl1.bminus, pcl1.lclhght, pcl1.lfchght
 print "Time for Lift:", datetime.now() - dt
 dt = datetime.now()
-print parcelx(prof,flag=4).bplus
+pcl2 = parcelx(prof,flag=4)
+print pcl2.bplus, pcl2.bminus, pcl2.lclhght, pcl2.lfchght
 print "Time for Lift:", datetime.now() - dt
+from pylab import *
+plot(prof.tmpc, prof.pres, 'r-')
+plot(prof.dwpc, prof.pres, 'g-')
+plot(prof.vtmp, prof.pres, 'r--')
+plot(pcl1.ttrace, pcl1.ptrace, 'k--')
+plot(pcl2.ttrace, pcl2.ptrace, 'm--')
+show()
