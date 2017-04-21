@@ -138,7 +138,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     
     # Append the p & T_v LPL and LCL points to the parcel trace arrays
     ptrace = np.asarray([pe1,pe2])
-    ttrace  = np.asarray([tp1,thermo.virtemp(pe2, tp2, tp2)])
+    ttrace  = np.asarray([tp1,thermo.virtemp(pe2, tp2, tp2)]) # Keep this profile in virtual temperature space
     
     # Calculate lifted parcel theta for use in iterative CINH loop below
     # RECALL: lifted parcel theta is CONSTANT from LPL to LCL
@@ -211,25 +211,29 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     iter_ranges = np.arange(lptr, prof.pres.shape[0])
     #ttraces = ma.zeros(len(iter_ranges))
     #ptraces = ma.zeros(len(iter_ranges))
+    pcl.thetae = thermo.thetae(ptrace[1],  tp2, tp2)
+    #print ptrace[1], tp2, pcl.thetae
+    #pcl.thetae = thermo.thetae(ptrace[0],  ttrace[0], ttrace[0])
+    #print ptrace[0], ttrace[0], pcl.thetae
     ttraces = thermo.wetlift(1000,25, prof.pres[iter_ranges], theta_e=pcl.thetae, method='bolton')
     ptraces = prof.pres[iter_ranges] # Obtain the pressure grid of the pseudoadiabatic portion of the profile
     tv_env = prof.vtmp[iter_ranges] # The environmental virtual temperature profile
     tv_pcl = thermo.virtemp(ptraces, ttraces, ttraces) # Covert the parcel temperature into virtual temperature space
     B = (tv_pcl - tv_env) / thermo.ctok(tv_env) # buoyancy profile along the pseudoadiabat
-
-    #print "i     pe2    tp2     pe1    te2  lyre lyrlast tote totp   totn"      
+    #print ptraces, tv_pcl, ttraces
+    #stop
+    #print "i     pe2    tp2     pe1    te2   tp1  lyre lyrlast tote totp   totn"      
     for i in iter_ranges:
-        if not utils.QC(prof.tmpc[i]): continue
+        if not utils.QC(prof.tmpc[i]): continue # Continue if the temperature value given is invalid
         pe2 = ptraces[i-iter_ranges[0]]
         h2 = prof.hght[i]
         te2 = tv_env[i-iter_ranges[0]]
-        #te2 = thermo.virtemp(prof.pres[i], prof.tmpc[i], prof.dwpc[i])
         tp2 = ttraces[i-iter_ranges[0]]# thermo.wetlift(pe1, tp1, pe2) # lift the parcel to the next level.
-        tdef1 = (thermo.virtemp(pe1, tp1, tp1) - te1) / thermo.ctok(te1) # buoyancy at the bottom of the layer
-        tdef2 = (thermo.virtemp(pe2, tp2, tp2) - te2) / thermo.ctok(te2) # buoyancy at the top of the layer
-
+        tdef1 = (thermo.virtemp(pe1, tp1, tp1) - te1) / thermo.ctok(te1) # normalized buoyancy at the bottom of the layer
+        tdef2 = (thermo.virtemp(pe2, tp2, tp2) - te2) / thermo.ctok(te2) # normalized buoyancy at the top of the layer
+        #ttraces[i-iter_ranges[0]] = thermo.virtemp(pe2, tp2, tp2)
         # Add the parcel values to the array keeping track of the parcel trace.
-        lyrlast = lyre # Save the layer energy to the last layer energy
+        lyrlast = lyre # Save the layer energy to the last layer energy...this will be used to find levels where the energy sign reverses (e.g. LFC)
         lyre = G * (tdef1 + tdef2) / 2. * (h2 - h1) # compute the layer energy (J/kg)
 
         # Add layer energy to total positive if lyre > 0
@@ -237,7 +241,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
         # Add layer energy to total negative if lyre < 0, only up to 500 mb.
         else:
             if pe2 > 500.: totn += lyre
-        #print "%d  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f" % (i, pe2, tp2, pe1, te2, lyre, lyrlast, tote, totp, totn)      
+        #print "%d  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f" % (i-iter_ranges[0], pe2, thermo.virtemp(pe2, tp2, tp2), pe1, te2, thermo.virtemp(pe1, tp1, tp1), lyre, lyrlast, tote, totp, totn)      
         
         # Check for Max LI
         mli = tv_pcl[i-iter_ranges[0]] - te2
@@ -589,7 +593,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     # Save params
     if np.floor(pcl.bplus) == 0: pcl.bminus = 0.
     pcl.ptrace = ma.concatenate((ptrace, ptraces))
-    pcl.ttrace = ma.concatenate((ttrace, ttraces))
+    pcl.ttrace = ma.concatenate((ttrace, tv_pcl))
 
     # Find minimum buoyancy from Trier et al. 2014, Part 1
     idx = np.ma.where(pcl.ptrace >= 500.)[0]
@@ -610,12 +614,14 @@ prof = profile.create_profile(profile='default', pres=pres, hght=hght, tmpc=tmpc
 from datetime import datetime
 dt = datetime.now()
 pcl1 = params.parcelx(prof, flag=4)
-print pcl1.bplus, pcl1.bminus, pcl1.lclhght, pcl1.lfchght
+print pcl1.bplus, pcl1.bminus, pcl1.lclhght, pcl1.lfchght, pcl1.elhght
 print "Time for Lift:", datetime.now() - dt
 dt = datetime.now()
 pcl2 = parcelx(prof,flag=4)
-print pcl2.bplus, pcl2.bminus, pcl2.lclhght, pcl2.lfchght
+print pcl2.bplus, pcl2.bminus, pcl2.lclhght, pcl2.lfchght, pcl2.elhght
 print "Time for Lift:", datetime.now() - dt
+#for i in range(len(pcl2.ttrace)):
+#    print pcl1.ttrace[i], pcl2.ttrace[i], pcl1.ptrace[i], pcl2.ptrace[i]
 from pylab import *
 plot(prof.tmpc, prof.pres, 'r-')
 plot(prof.dwpc, prof.pres, 'g-')
