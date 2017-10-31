@@ -302,9 +302,9 @@ class BasicProfile(Profile):
             qc_tools.raiseError("Invalid temperature array. Array contains a value < -273.15 Celsius.", ValueError)
         if not qc_tools.isDWPCValid(self.dwpc):
             qc_tools.raiseError("Invalid dewpoint array. Array contains a value < -273.15 Celsius.", ValueError)
-        if not qc_tools.isWSPDValid(self.wspd) and strictQC:
+        if not qc_tools.isWSPDValid(self.wspd) and self.strictQC:
             qc_tools.raiseError("Invalid wind speed array. Array contains a value < 0 knots.", ValueError)
-        if not qc_tools.isWDIRValid(self.wdir) and strictQC:
+        if not qc_tools.isWDIRValid(self.wdir) and self.strictQC:
             qc_tools.raiseError("Invalid wind direction array. Array contains a value < 0 degrees or value >= 360 degrees.", ValueError)     
 
 
@@ -316,10 +316,11 @@ class BasicProfile(Profile):
         ## get the index of the top and bottom of the profile
         self.sfc = self.get_sfc()
         self.top = self.get_top()
-        ## generate the wetbulb profile
-        self.wetbulb = self.get_wetbulb_profile()
+
         ## generate theta-e profile
         self.thetae = self.get_thetae_profile()
+        ## generate the wetbulb profile
+        self.wetbulb = self.get_wetbulb_profile()
 
     def get_sfc(self):
         '''
@@ -354,7 +355,7 @@ class BasicProfile(Profile):
             '''
         return np.where(~self.tmpc.mask)[0].max()
     
-    def get_wetbulb_profile(self):
+    def get_wetbulb_profile(self, method='bolton'):
         '''
             Function to calculate the wetbulb profile.
             
@@ -366,15 +367,17 @@ class BasicProfile(Profile):
             -------
             Array of wet bulb profile
             '''
-        
-        wetbulb = ma.empty(self.pres.shape[0])
-        for i in range(len(self.v)):
-            wetbulb[i] = thermo.wetbulb( self.pres[i], self.tmpc[i], self.dwpc[i] )
-        wetbulb[wetbulb == self.missing] = ma.masked
-        wetbulb.set_fill_value(self.missing)
+        if method == 'bolton':
+            wetbulb = thermo.wetlift(self.pres, self.tmpc, self.pres, theta_e=self.thetae, method='bolton') 
+        else:
+            wetbulb = ma.empty(self.pres.shape[0])
+            for i in range(len(self.v)):
+                wetbulb[i] = thermo.wetbulb( self.pres[i], self.tmpc[i], self.dwpc[i] )
+            wetbulb[wetbulb == self.missing] = ma.masked
+            wetbulb.set_fill_value(self.missing)
         return wetbulb
     
-    def get_theta_profile(self):
+    def get_theta_profile(self, method='bolton'):
         '''
             Function to calculate the theta profile.
             
@@ -386,15 +389,13 @@ class BasicProfile(Profile):
             -------
             Array of theta profile
             '''
-        theta = ma.empty(self.pres.shape[0])
-        for i in range(len(self.v)):
-            theta[i] = thermo.theta(self.pres[i], self.tmpc[i])
+        theta = thermo.theta(self.pres, self.tmpc)
         theta[theta == self.missing] = ma.masked
         theta.set_fill_value(self.missing)
         theta = thermo.ctok(theta)
         return theta
     
-    def get_thetae_profile(self):
+    def get_thetae_profile(self, method='bolton'):
         '''
             Function to calculate the theta-e profile.
             
@@ -406,9 +407,12 @@ class BasicProfile(Profile):
             -------
             Array of theta-e profile
             '''
-        thetae = ma.empty(self.pres.shape[0])
-        for i in range(len(self.v)):
-            thetae[i] = thermo.ctok( thermo.thetae(self.pres[i], self.tmpc[i], self.dwpc[i]) )
+        if method == 'bolton':
+            thetae = thermo.thetae(self.pres, self.tmpc, self.dwpc, method=method)
+        else:
+            thetae = ma.empty(self.pres.shape[0])
+            for i in range(len(self.v)):
+                thetae[i] = thermo.ctok( thermo.thetae(self.pres[i], self.tmpc[i], self.dwpc[i]) , method=method)
         thetae[thetae == self.missing] = ma.masked
         thetae.set_fill_value(self.missing)
         return thetae

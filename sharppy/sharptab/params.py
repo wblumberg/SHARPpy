@@ -1155,6 +1155,7 @@ def most_unstable_level(prof, pbot=None, ptop=None, dp=-1, exact=False):
         Pressure level of most unstable level (hPa)
         
         '''
+    """
     if not pbot: pbot = prof.pres[prof.sfc]
     if not ptop: ptop = prof.pres[prof.sfc] - 400
     if not utils.QC(interp.temp(prof, pbot)): pbot = prof.pres[prof.sfc]
@@ -1180,6 +1181,12 @@ def most_unstable_level(prof, pbot=None, ptop=None, dp=-1, exact=False):
         d = interp.dwpt(prof, p)
     p2, t2 = thermo.drylift(p, t, d)
     mt = thermo.wetlift(p2, t2, 1000.) # Essentially this is making the Theta-E profile, which we are already doing in the Profile object!
+    
+    NOTE: COMMENTED OUT BECAUSE I COULD DO THIS JUST BY INTERPOLATING THE THETAE PROFILE AND FINDING THE MAX 
+    """
+    dp = -1
+    p = np.arange(pbot, ptop+dp, dp, dtype=type(pbot))
+    mt = interp.thetae(prof, p)
     ind = np.where(np.fabs(mt - np.nanmax(mt)) < TOL)[0]
     return p[ind[0]]
 

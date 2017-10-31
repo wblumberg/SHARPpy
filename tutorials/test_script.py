@@ -1,5 +1,5 @@
 # Attempting to both accelerate and make parcelx() from SHARPpy more flexible.
-
+import skewt
 import sharppy.sharptab.params as params
 import sharppy.sharptab.thermo as thermo
 import sharppy.sharptab.interp as interp
@@ -605,27 +605,61 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     
     return pcl
 
-spc_file = open('14061619.OAX', 'r').read()
-pres, hght, tmpc, dwpc, wdir, wspd = parseSPC(spc_file)
+#spc_file = open('14061619.OAX', 'r').read()
+#pres, hght, tmpc, dwpc, wdir, wspd = parseSPC(spc_file)
+
+from netCDF4 import Dataset
+d = Dataset('sgpsondewnpnC1.b1.20130520.113100.cdf')
+d = Dataset('sgpsondewnpnC1.b1.20130520.172600.cdf')
+tmpc = d.variables['tdry'][:]
+pres = d.variables['pres'][:]
+hght = d.variables['alt'][:]
+dwpc = d.variables['dp'][:]
+wspd = d.variables['wspd'][:]
+wdir = d.variables['deg'][:]
 
 prof = profile.create_profile(profile='default', pres=pres, hght=hght, tmpc=tmpc, \
-                                    dwpc=dwpc, wspd=wspd, wdir=wdir, missing=-9999, strictQC=True)
+                                    dwpc=dwpc, wspd=wspd, wdir=wdir, missing=-9999, strictQC=False)
 
 from datetime import datetime
 dt = datetime.now()
-pcl1 = params.parcelx(prof, flag=4)
+pcl1 = params.parcelx(prof, flag=3)
+tfl1 = datetime.now() - dt
 print pcl1.bplus, pcl1.bminus, pcl1.lclhght, pcl1.lfchght, pcl1.elhght
-print "Time for Lift:", datetime.now() - dt
+print "Time for Lift:",tfl1 
 dt = datetime.now()
-pcl2 = parcelx(prof,flag=4)
+pcl2 = parcelx(prof,flag=3)
+tfl2 = datetime.now() - dt
 print pcl2.bplus, pcl2.bminus, pcl2.lclhght, pcl2.lfchght, pcl2.elhght
-print "Time for Lift:", datetime.now() - dt
+print "Time for Lift:", tfl2
 #for i in range(len(pcl2.ttrace)):
 #    print pcl1.ttrace[i], pcl2.ttrace[i], pcl1.ptrace[i], pcl2.ptrace[i]
 from pylab import *
-plot(prof.tmpc, prof.pres, 'r-')
-plot(prof.dwpc, prof.pres, 'g-')
-plot(prof.vtmp, prof.pres, 'r--')
-plot(pcl1.ttrace, pcl1.ptrace, 'k--')
-plot(pcl2.ttrace, pcl2.ptrace, 'm--')
+from matplotlib.ticker import (MultipleLocator, NullFormatter, ScalarFormatter)
+
+fig = figure(figsize=(6.5875, 6.2125))
+ax = fig.add_subplot(111, projection='skewx')
+
+grid(True)
+
+# Plot the data using normal plotting functions, in this case using
+# log scaling in Y, as dictated by the typical meteorological plot
+ax.semilogy(prof.tmpc, prof.pres, color='r')
+ax.semilogy(prof.vtmp, prof.pres, color='r', linestyle='--')
+ax.semilogy(prof.wetbulb, prof.pres, color='c', linestyle='-')
+ax.semilogy(prof.dwpc, prof.pres, color='g')
+ax.semilogy(pcl1.ttrace, pcl1.ptrace, color='k', linestyle='--', label='WOBUS ' + str(tfl1) + ' s')
+ax.semilogy(pcl2.ttrace, pcl2.ptrace, color='m', linestyle='--', label='RDJ ' + str(tfl2) + ' s')
+legend()
+# An example of a slanted line at constant X
+l = ax.axvline(0, color='C0')
+
+# Disables the log-formatting that comes with semilogy
+ax.yaxis.set_major_formatter(ScalarFormatter())
+ax.yaxis.set_minor_formatter(NullFormatter())
+ax.set_yticks(np.linspace(100, 1000, 10))
+ax.set_ylim(1050, 100)
+
+ax.xaxis.set_major_locator(MultipleLocator(10))
+ax.set_xlim(-50, 50)
 show()
