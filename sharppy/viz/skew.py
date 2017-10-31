@@ -453,7 +453,7 @@ class plotSkewT(backgroundSkewT):
         self.parcelmenu.addAction(pcl4)
         self.parcelmenu.setEnabled(False)
         self.popupmenu=QMenu("Cursor Type:")
-        ag = QtGui.QActionGroup(self, exclusive=True)
+        ag = QActionGroup(self, exclusive=True)
 
         nocurs = QAction(self)
         nocurs.setText("No Cursor")

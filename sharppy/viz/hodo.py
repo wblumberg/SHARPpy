@@ -385,7 +385,7 @@ class plotHodo(backgroundHodo):
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.showCursorMenu)
         self.popupmenu=QMenu("Cursor Type:")
-        ag = QtGui.QActionGroup(self, exclusive=True)
+        ag = QActionGroup(self, exclusive=True)
 
         self.readout_hght = -999.
         self.readout_visible = False
@@ -406,7 +406,7 @@ class plotHodo(backgroundHodo):
         self.popupmenu.addAction(a)
 
         self.popupmenu.addSeparator()
-        ag2 = QtGui.QActionGroup(self, exclusive=True)
+        ag2 = QActionGroup(self, exclusive=True)
 
         norm = QAction(self)
         norm.setText("Normal")

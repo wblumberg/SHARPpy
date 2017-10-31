@@ -296,7 +296,7 @@ class plotVROT(backgroundVROT):
         """
         Opens the text version of the input dialog
         """
-        text, result = QtGui.QInputDialog.getText(None, "VROT Input",
+        text, result = QWidgets.QInputDialog.getText(None, "VROT Input",
                                             "Enter the VROT:")
         if result:
             self.vrot = int(text)

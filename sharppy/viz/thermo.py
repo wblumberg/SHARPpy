@@ -703,42 +703,42 @@ class SelectParcels(QWidget):
 
     def initUI(self):
 
-        self.sb = QtGui.QCheckBox('Surface-Based Parcel', self)
+        self.sb = QCheckBox('Surface-Based Parcel', self)
         self.sb.move(20, 20)
         if "SFC" in self.parcel_types:
             self.sb.toggle()
             self.pcl_count += 1
         self.sb.stateChanged.connect(self.changeParcel)
 
-        self.ml = QtGui.QCheckBox('100 mb Mixed Layer Parcel', self)
+        self.ml = QCheckBox('100 mb Mixed Layer Parcel', self)
         self.ml.move(20, 40)
         if "ML" in self.parcel_types:
             self.ml.toggle()
             self.pcl_count += 1
         self.ml.stateChanged.connect(self.changeParcel)
 
-        self.fcst = QtGui.QCheckBox('Forecast Surface Parcel', self)
+        self.fcst = QCheckBox('Forecast Surface Parcel', self)
         self.fcst.move(20, 60)
         if "FCST" in self.parcel_types:
             self.fcst.toggle()
             self.pcl_count += 1
         self.fcst.stateChanged.connect(self.changeParcel)
 
-        self.mu = QtGui.QCheckBox('Most Unstable Parcel', self)
+        self.mu = QCheckBox('Most Unstable Parcel', self)
         self.mu.move(20, 80)
         if "MU" in self.parcel_types:
             self.mu.toggle()
             self.pcl_count += 1
         self.mu.stateChanged.connect(self.changeParcel)
 
-        self.eff = QtGui.QCheckBox('Effective Inflow Layer Parcel', self)
+        self.eff = QCheckBox('Effective Inflow Layer Parcel', self)
         self.eff.move(20, 100)
         if "EFF" in self.parcel_types:
             self.eff.toggle()
             self.pcl_count += 1
         self.eff.stateChanged.connect(self.changeParcel)
 
-        self.usr = QtGui.QCheckBox('User Defined Parcel', self)
+        self.usr = QCheckBox('User Defined Parcel', self)
         self.usr.move(20, 120)
         if "USER" in self.parcel_types:
             self.usr.toggle()
@@ -748,7 +748,7 @@ class SelectParcels(QWidget):
 
         self.setGeometry(300, 300, 250, 180)
         self.setWindowTitle('Show Parcels')
-        self.ok = QtGui.QPushButton('Ok', self)
+        self.ok = QPushButton('Ok', self)
         self.ok.move(20,150)
         self.ok.clicked.connect(self.okPushed)
 
