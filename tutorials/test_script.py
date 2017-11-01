@@ -610,7 +610,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
 
 from netCDF4 import Dataset
 d = Dataset('sgpsondewnpnC1.b1.20130520.113100.cdf')
-d = Dataset('sgpsondewnpnC1.b1.20130520.172600.cdf')
+#d = Dataset('sgpsondewnpnC1.b1.20130520.172600.cdf')
 tmpc = d.variables['tdry'][:]
 pres = d.variables['pres'][:]
 hght = d.variables['alt'][:]
@@ -639,7 +639,7 @@ from matplotlib.ticker import (MultipleLocator, NullFormatter, ScalarFormatter)
 
 fig = figure(figsize=(6.5875, 6.2125))
 ax = fig.add_subplot(111, projection='skewx')
-
+title('LMN  20130520/1131  (Observed)', loc='left')
 grid(True)
 
 # Plot the data using normal plotting functions, in this case using
@@ -654,12 +654,17 @@ legend()
 # An example of a slanted line at constant X
 l = ax.axvline(0, color='C0')
 
+ax.text(0.55,0.7, 'RDJ MUCAPE=' + str(round(pcl2.bplus)) + ' J/kg' + '\nWOBUS MUCAPE=' + str(round(pcl1.bplus)) + ' J/kg\n' + \
+                  'RDJ MUCIN=' + str(round(pcl2.bminus)) + ' J/kg' + '\nWOBUS MUCIN=' + str(round(pcl1.bminus)) + ' J/kg', backgroundcolor='white', transform=ax.transAxes)
+
 # Disables the log-formatting that comes with semilogy
 ax.yaxis.set_major_formatter(ScalarFormatter())
 ax.yaxis.set_minor_formatter(NullFormatter())
 ax.set_yticks(np.linspace(100, 1000, 10))
 ax.set_ylim(1050, 100)
-
+ax.set_xlabel("Temperature [C]")
+ax.set_ylabel("Pressure [mb]")
 ax.xaxis.set_major_locator(MultipleLocator(10))
 ax.set_xlim(-50, 50)
+savefig('wobus_vs_rdj_ex.pdf', bbox_inches='tight')
 show()
