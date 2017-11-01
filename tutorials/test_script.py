@@ -9,7 +9,7 @@ import numpy as np
 import numpy.ma as ma
 from StringIO import StringIO
 
-G = 9.81 
+G = 9.80665
 
 def parseSPC(spc_file):
     ## read in the file
@@ -73,6 +73,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
         
         '''
     flag = kwargs.get('flag', 5)
+    print flag
     pcl = params.Parcel(pbot=pbot, ptop=ptop) # Create an empty parcel
     pcl.lplvals = kwargs.get('lplvals', params.DefineParcel(prof, flag)) # Set the original parcel values
     if prof.pres.compressed().shape[0] < 1: return pcl
@@ -138,7 +139,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     
     # Append the p & T_v LPL and LCL points to the parcel trace arrays
     ptrace = np.asarray([pe1,pe2])
-    ttrace  = np.asarray([tp1,thermo.virtemp(pe2, tp2, tp2)]) # Keep this profile in virtual temperature space
+    ttrace = np.asarray([tp1,thermo.virtemp(pe2, tp2, tp2)]) # Keep this profile in virtual temperature space
     
     # Calculate lifted parcel theta for use in iterative CINH loop below
     # RECALL: lifted parcel theta is CONSTANT from LPL to LCL
@@ -222,7 +223,7 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
     B = (tv_pcl - tv_env) / thermo.ctok(tv_env) # buoyancy profile along the pseudoadiabat
     #print ptraces, tv_pcl, ttraces
     #stop
-    #print "i     pe2    tp2     pe1    te2   tp1  lyre lyrlast tote totp   totn"      
+    #print "i     pe2    tp2     pe1    te2   tp1  lyre lyrlast tote totp   totn"
     for i in iter_ranges:
         if not utils.QC(prof.tmpc[i]): continue # Continue if the temperature value given is invalid
         pe2 = ptraces[i-iter_ranges[0]]
@@ -241,8 +242,11 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
         # Add layer energy to total negative if lyre < 0, only up to 500 mb.
         else:
             if pe2 > 500.: totn += lyre
-        #print "%d  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f  %1.2f" % (i-iter_ranges[0], pe2, thermo.virtemp(pe2, tp2, tp2), pe1, te2, thermo.virtemp(pe1, tp1, tp1), lyre, lyrlast, tote, totp, totn)      
-        
+        #print "%d  %1.4f  %1.4f  %1.4f  %1.4f  %1.4f  %1.4f  %1.4f  %1.4f  %1.4f  %1.4f" % (
+        #    i - iter_ranges[0], pe2, thermo.virtemp(pe2, tp2, tp2), pe1, te2, thermo.virtemp(pe1, tp1, tp1), lyre,
+        #    lyrlast,
+        #    tote, totp, totn)
+
         # Check for Max LI
         mli = tv_pcl[i-iter_ranges[0]] - te2
         if  mli > li_max:
@@ -602,38 +606,59 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
         idx2 = np.ma.argmin(b)
         pcl.bmin = b[idx2]
         pcl.bminpres = pcl.ptrace[idx][idx2]
-    
+        pcl.bminhght = interp.hght(prof, pcl.bminpres) 
     return pcl
 
-#spc_file = open('14061619.OAX', 'r').read()
-#pres, hght, tmpc, dwpc, wdir, wspd = parseSPC(spc_file)
+spc_file = open('14061619.OAX', 'r').read()
+pres, hght, tmpc, dwpc, wdir, wspd = parseSPC(spc_file)
 
-from netCDF4 import Dataset
-d = Dataset('sgpsondewnpnC1.b1.20130520.113100.cdf')
+#from netCDF4 import Dataset
+#d = Dataset('sgpsondewnpnC1.b1.20130520.113100.cdf')
 #d = Dataset('sgpsondewnpnC1.b1.20130520.172600.cdf')
-tmpc = d.variables['tdry'][:]
-pres = d.variables['pres'][:]
-hght = d.variables['alt'][:]
-dwpc = d.variables['dp'][:]
-wspd = d.variables['wspd'][:]
-wdir = d.variables['deg'][:]
+#tmpc = d.variables['tdry'][:]
+#pres = d.variables['pres'][:]
+#hght = d.variables['alt'][:]
+#dwpc = d.variables['dp'][:]
+#wspd = d.variables['wspd'][:]
+#wdir = d.variables['deg'][:]
 
 prof = profile.create_profile(profile='default', pres=pres, hght=hght, tmpc=tmpc, \
                                     dwpc=dwpc, wspd=wspd, wdir=wdir, missing=-9999, strictQC=False)
 
 from datetime import datetime
+print "Test WOBUS:"
 dt = datetime.now()
-pcl1 = params.parcelx(prof, flag=3)
+pcl1 = params.parcelx(prof, method='wobus', flag=5)
 tfl1 = datetime.now() - dt
+print "Time for Lift:",tfl1
 print pcl1.bplus, pcl1.bminus, pcl1.lclhght, pcl1.lfchght, pcl1.elhght
-print "Time for Lift:",tfl1 
+
+print "Test RDJ:"
 dt = datetime.now()
-pcl2 = parcelx(prof,flag=3)
+pcl2 = params.parcelx(prof, method='bolton', flag=5)
 tfl2 = datetime.now() - dt
 print pcl2.bplus, pcl2.bminus, pcl2.lclhght, pcl2.lfchght, pcl2.elhght
 print "Time for Lift:", tfl2
+
+print "Test CAPE WOBUS:"
+dt = datetime.now()
+pcl_test = params.cape(prof, method='wobus', flag=5)
+tfl3 = datetime.now() - dt
+print "Time for Lift:", tfl3
+print pcl_test.bplus, pcl_test.bminus, pcl_test.lclhght, pcl_test.lfchght, pcl_test.elhght
+
+print "Test CAPE RDJ:"
+dt = datetime.now()
+pcl_test = params.cape(prof, method='bolton', flag=5)
+tfl3 = datetime.now() - dt
+print "Time for Lift:", tfl3
+print pcl_test.bplus, pcl_test.bminus, pcl_test.lclhght, pcl_test.lfchght, pcl_test.elhght
+
 #for i in range(len(pcl2.ttrace)):
 #    print pcl1.ttrace[i], pcl2.ttrace[i], pcl1.ptrace[i], pcl2.ptrace[i]
+for key in sorted(pcl2.__dict__):
+    if type(getattr(pcl1,key)) == float:
+        print key, getattr(pcl1,key) - getattr(pcl2,key)
 from pylab import *
 from matplotlib.ticker import (MultipleLocator, NullFormatter, ScalarFormatter)
 
