@@ -611,48 +611,51 @@ def parcelx(prof, pbot=None, ptop=None, dp=-1, method='bolton', **kwargs):
 
 spc_file = open('14061619.OAX', 'r').read()
 pres, hght, tmpc, dwpc, wdir, wspd = parseSPC(spc_file)
-
-#from netCDF4 import Dataset
-#d = Dataset('sgpsondewnpnC1.b1.20130520.113100.cdf')
-#d = Dataset('sgpsondewnpnC1.b1.20130520.172600.cdf')
-#tmpc = d.variables['tdry'][:]
-#pres = d.variables['pres'][:]
-#hght = d.variables['alt'][:]
-#dwpc = d.variables['dp'][:]
-#wspd = d.variables['wspd'][:]
-#wdir = d.variables['deg'][:]
-
+"""
+from netCDF4 import Dataset
+d = Dataset('sgpsondewnpnC1.b1.20130520.113100.cdf')
+d = Dataset('sgpsondewnpnC1.b1.20130520.172600.cdf')
+tmpc = d.variables['tdry'][:]
+pres = d.variables['pres'][:]
+hght = d.variables['alt'][:]
+dwpc = d.variables['dp'][:]
+wspd = d.variables['wspd'][:]
+wdir = d.variables['deg'][:]
+"""
 prof = profile.create_profile(profile='default', pres=pres, hght=hght, tmpc=tmpc, \
                                     dwpc=dwpc, wspd=wspd, wdir=wdir, missing=-9999, strictQC=False)
 
+print params.effective_inflow_layer(prof)
+#stop
+
 from datetime import datetime
-print "Test WOBUS:"
+print "\nTest WOBUS:"
 dt = datetime.now()
 pcl1 = params.parcelx(prof, method='wobus', flag=5)
 tfl1 = datetime.now() - dt
-print "Time for Lift:",tfl1
 print pcl1.bplus, pcl1.bminus, pcl1.lclhght, pcl1.lfchght, pcl1.elhght
+print "Time for Lift:",tfl1
 
-print "Test RDJ:"
+print "\nTest RDJ:"
 dt = datetime.now()
 pcl2 = params.parcelx(prof, method='bolton', flag=5)
 tfl2 = datetime.now() - dt
 print pcl2.bplus, pcl2.bminus, pcl2.lclhght, pcl2.lfchght, pcl2.elhght
 print "Time for Lift:", tfl2
 
-print "Test CAPE WOBUS:"
+print "\nTest CAPE WOBUS:"
 dt = datetime.now()
 pcl_test = params.cape(prof, method='wobus', flag=5)
 tfl3 = datetime.now() - dt
-print "Time for Lift:", tfl3
 print pcl_test.bplus, pcl_test.bminus, pcl_test.lclhght, pcl_test.lfchght, pcl_test.elhght
+print "Time for Lift:", tfl3
 
-print "Test CAPE RDJ:"
+print "\nTest CAPE RDJ:"
 dt = datetime.now()
 pcl_test = params.cape(prof, method='bolton', flag=5)
 tfl3 = datetime.now() - dt
-print "Time for Lift:", tfl3
 print pcl_test.bplus, pcl_test.bminus, pcl_test.lclhght, pcl_test.lfchght, pcl_test.elhght
+print "Time for Lift:", tfl3
 
 #for i in range(len(pcl2.ttrace)):
 #    print pcl1.ttrace[i], pcl2.ttrace[i], pcl1.ptrace[i], pcl2.ptrace[i]

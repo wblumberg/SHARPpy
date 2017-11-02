@@ -1397,6 +1397,10 @@ def cape_wobus(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     pres = kwargs.get('pres', pcl.lplvals.pres)
     tmpc = kwargs.get('tmpc', pcl.lplvals.tmpc)
     dwpc = kwargs.get('dwpc', pcl.lplvals.dwpc)
+    ecin = kwargs.get('ecin', -1000000)
+    ecape = kwargs.get('ecape', 50000000)
+    eflag = kwargs.get('eflag', 0)
+
     #thetae = kwargs.get('thetae', pcl.thetae)
     #pcl.thetae = thermo.thetae(pcl.pres, pcl.tmpc, pcl.dwpc, method=method)
     pcl.pres = pres
@@ -1459,6 +1463,13 @@ def cape_wobus(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     lyre = G * (tdef[tidx1]+tdef[tidx2]) / 2 * (hh[tidx2]-hh[tidx1])
     totn = lyre[lyre < 0].sum()
     if not totn: totn = 0.
+
+    # If the CINH below the LCL is greater than the CINH threshold and the
+    # conditional statement is if both the CINH and CAPE meet the effective
+    # inflow layer definition.
+    if totn > ecin and eflag > 0:
+        pcl.bminus = totn
+        return pcl
     
     # Move the bottom layer to the top of the boundary layer
     if pbot > pe2:
@@ -1492,43 +1503,40 @@ def cape_wobus(prof, pbot=None, ptop=None, dp=-1, **kwargs):
         lyrlast = lyre
         lyre = G * (tdef1 + tdef2) / 2. * (h2 - h1)
         # Add layer energy to total positive if lyre > 0
-        if lyre > 0: totp += lyre
+        if lyre > 0:
+            totp += lyre
         # Add layer energy to total negative if lyre < 0, only up to EL
         else:
             if pe2 > 500.: totn += lyre
-        tote += lyre
+        tote += lyre # Add layer energy to total energy regardless of energy sign
         pe1 = pe2
         h1 = h2
         te1 = te2
         tp1 = tp2
-        # Is this the top of the specified layer
-        if i >= uptr and not utils.QC(pcl.bplus):
-            pe3 = pe1
-            h3 = h1
-            te3 = te1
-            tp3 = tp1
-            lyrf = lyre
-            if lyrf > 0:
-                pcl.bplus = totp - lyrf
-                pcl.bminus = totn
-            else:
-                pcl.bplus = totp
-                if pe2 > 500.: pcl.bminus = totn + lyrf
-                else: pcl.bminus = totn
-            pe2 = ptop
-            h2 = interp.hght(prof, pe2)
-            te2 = interp.vtmp(prof, pe2)
-            tp2 = thermo.wetlift(pe3, tp3, pe2, pcl.thetae, method='wobus')
-            tdef3 = (thermo.virtemp(pe3, tp3, tp3) - te3) / thermo.ctok(te3)
-            tdef2 = (thermo.virtemp(pe2, tp2, tp2) - te2) / thermo.ctok(te2)
-            lyrf = G * (tdef3 + tdef2) / 2. * (h2 - h3)
-            if lyrf > 0: pcl.bplus += lyrf
-            else:
-                if pe2 > 500.: pcl.bminus += lyrf
-            if pcl.bplus == 0: pcl.bminus = 0.
 
-        if lyre >= 0. and lyrlast <= 0.:
+        lyrf = lyre
+
+        # remove the last layer from the total energy and save the bminus
+        if lyrf > 0:
+            pcl.bplus = totp - lyrf
+            pcl.bminus = totn
+        else:
+            pcl.bplus = totp
+        if pe2 > 500.: # if the layer is below 500 mb, remove the layer energy from totn
+            pcl.bminus = totn + lyrf
+        else:
+            pcl.bminus = totn
+
+
+        if pcl.bplus == 0: pcl.bminus = 0.
+
+        if lyre >= 0. and lyrlast <= 0.: # LFC condition
             tote = 0.
+
+        if pcl.bplus >= ecape and pcl.bminus > ecin and eflag > 0:
+            return pcl
+        if pcl.bminus < ecin and pcl.bplus >= 0 and eflag > 0: # If we're not accumulating CAPE, we're accumulating CIN
+            return pcl
 
     return pcl
 
@@ -1580,6 +1588,9 @@ def cape_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     pres = kwargs.get('pres', pcl.lplvals.pres)
     tmpc = kwargs.get('tmpc', pcl.lplvals.tmpc)
     dwpc = kwargs.get('dwpc', pcl.lplvals.dwpc)
+    ecin = kwargs.get('ecin', -100000)
+    ecape = kwargs.get('ecape', 5000000)
+    eflag = kwargs.get('eflag', 0)
     pcl.pres = pres
     pcl.tmpc = tmpc
     pcl.dwpc = dwpc
@@ -1638,6 +1649,13 @@ def cape_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     totn = lyre[lyre < 0].sum()
     if not totn: totn = 0.
 
+    # If the CINH below the LCL is greater than the CINH threshold and the
+    # conditional statement is if both the CINH and CAPE meet the effective
+    # inflow layer definition.
+    if totn <= ecin and eflag > 0:
+        pcl.bminus = totn
+        return pcl
+
     # Move the bottom layer to the top of the boundary layer/LCL
     if pbot > pe2:
         pbot = pe2
@@ -1692,23 +1710,22 @@ def cape_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
         tp1 = tp2
 
         # Is this the top of the specified layer we're lifting the parcel over
-        if i >= uptr and not utils.QC(pcl.bplus):
-            lyrf = lyre
-            if lyrf > 0:
-                pcl.bplus = totp - lyrf
+        lyrf = lyre
+        if lyrf > 0:
+            pcl.bplus = totp - lyrf
+            pcl.bminus = totn
+        else:
+            pcl.bplus = totp
+            if pe2 > 500.:
+                pcl.bminus = totn + lyrf
+            else:
                 pcl.bminus = totn
-            else:
-                pcl.bplus = totp
-                if pe2 > 500.:
-                    pcl.bminus = totn + lyrf
-                else:
-                    pcl.bminus = totn
-            lyrf = 0
-            if lyrf > 0:
-                pcl.bplus += lyrf
-            else:
-                if pe2 > 500.: pcl.bminus += lyrf
-            if pcl.bplus == 0: pcl.bminus = 0.
+        lyrf = 0
+        if lyrf > 0:
+            pcl.bplus += lyrf
+        else:
+            if pe2 > 500.: pcl.bminus += lyrf
+        if pcl.bplus == 0: pcl.bminus = 0.
 
         h1 = h2
 
@@ -1717,6 +1734,11 @@ def cape_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
             tp3 = tv_pcl[i - iter_ranges[0] - 1]
             if tv_env[i - iter_ranges[0] - 1] >= tp3:
                 tote = 0.
+
+        if pcl.bplus >= ecape and pcl.bminus > ecin and eflag > 0:
+            return pcl
+        if pcl.bminus < ecin and pcl.bplus >= 0 and eflag > 0: # If we're not accumulating CAPE, we're accumulating CIN
+            return pcl
 
     if not utils.QC(pcl.bplus): pcl.bplus = totp
 
@@ -2853,7 +2875,8 @@ def effective_inflow_layer(prof, ecape=100, ecinh=-250, **kwargs):
         if mucape >= ecape and mucinh > ecinh:
             # Begin at surface and search upward for effective surface
             for i in xrange(prof.sfc, prof.top):
-                pcl = cape(prof, pres=prof.pres[i], tmpc=prof.tmpc[i], dwpc=prof.dwpc[i])
+                pcl = cape(prof, pres=prof.pres[i], tmpc=prof.tmpc[i], dwpc=prof.dwpc[i],
+                           eflag=1, method='bolton', ecape=ecape, ecin=ecinh)
                 if pcl.bplus >= ecape and pcl.bminus > ecinh:
                     pbot = prof.pres[i]
                     break
@@ -2866,7 +2889,8 @@ def effective_inflow_layer(prof, ecape=100, ecinh=-250, **kwargs):
             for i in xrange(bptr+1, prof.top):
                 if not prof.dwpc[i] or not prof.tmpc[i]:
                     continue
-                pcl = cape(prof, pres=prof.pres[i], tmpc=prof.tmpc[i], dwpc=prof.dwpc[i])
+                pcl = cape(prof, pres=prof.pres[i], tmpc=prof.tmpc[i], dwpc=prof.dwpc[i],
+                           eflag=2, method='bolton', ecape=ecape, ecin=ecinh)
                 if pcl.bplus < ecape or pcl.bminus <= ecinh: #Is this a potential "top"?
                     j = 1
                     while not utils.QC(prof.dwpc[i-j]) and not utils.QC(prof.tmpc[i-j]):
