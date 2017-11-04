@@ -396,17 +396,7 @@ def wetlift(p, t, p2, theta_e=-9999, method='wobus'):
     Temperature (C)
 
     '''
-<<<<<<< HEAD
-    #if p == p2:
-    #    return t
-    thta = theta(p, t, 1000.)
-    if thta is np.ma.masked or p2 is np.ma.masked:
-        return np.ma.masked
-    thetam = thta - wobf(thta) + wobf(t)
-    return satlift(p2, thetam)
 
-
-=======
     if method == 'wobus':
         thta = theta(p, t, 1000.)
         if thta is np.ma.masked or p2 is np.ma.masked:
@@ -417,7 +407,6 @@ def wetlift(p, t, p2, theta_e=-9999, method='wobus'):
         if np.atleast_1d(theta_e).any() == -9999:
             thetae = thetae(p, t, t, method=method)
         return wetlift_rdj(np.atleast_1d(theta_e), p2) - C 
->>>>>>> rdj_wetlift
 
 def lifted(p, t, td, lev, method='wobus'):
     '''

@@ -279,7 +279,6 @@ def hgz(prof):
 
     return pbot, ptop
 
-
 def dgz(prof):
     '''
         Dendritic Growth Zone Levels
@@ -367,7 +366,6 @@ def lhp(prof):
         lhp = 0
 
     return lhp
-
 
 def ship(prof, **kwargs):
     '''
@@ -503,8 +501,6 @@ def stp_cin(mlcape, esrh, ebwd, mllcl, mlcinh):
     stp_cin = np.maximum(cape_term * eshr_term * ebwd_term * lcl_term * cinh_term, 0)
     return stp_cin
 
-
-
 def stp_fixed(sbcape, sblcl, srh01, bwd6):
     '''
         Significant Tornado Parameter (fixed layer)
@@ -546,8 +542,6 @@ def stp_fixed(sbcape, sblcl, srh01, bwd6):
     stp_fixed = cape_term * lcl_term * srh_term * bwd6_term
    
     return stp_fixed
-
-
 
 def scp(mucape, srh, ebwd):
     '''
@@ -1495,7 +1489,6 @@ def cape(prof, pbot=None, ptop=None, dp=-1, new_lifter=True, **kwargs):
                 if pcl.bplus == 0: pcl.bminus = 0.
     return pcl
 
-
 def integrate_parcel(pres, tbot):
     pcl_tmpc = np.empty(pres.shape, dtype=pres.dtype)
     pcl_tmpc[0] = tbot
@@ -1503,7 +1496,6 @@ def integrate_parcel(pres, tbot):
         pcl_tmpc[idx] = thermo.wetlift(pres[idx - 1], pcl_tmpc[idx - 1], pres[idx])
 
     return pcl_tmpc
-
 
 def parcelx(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     '''

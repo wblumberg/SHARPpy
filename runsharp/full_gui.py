@@ -513,7 +513,7 @@ class Picker(QWidget):
             if self.skew is None:
                 # If the SPCWindow isn't shown, set it up.
                 print "Made it to SPCWindow Constructor"
-		self.skew = SPCWindow(parent=self.parent(), cfg=self.config)
+                self.skew = SPCWindow(parent=self.parent(), cfg=self.config)
                 self.parent().config_changed.connect(self.skew.centralWidget().updateConfig)
                 self.skew.closed.connect(self.skewAppClosed)
                 self.skew.show()
