@@ -43,28 +43,28 @@ class backgroundSkewT(QtWidgets.QWidget):
         self.originy = 0. # self.size().height() / 2
         self.scale = 1.
         if self.physicalDpiX() > 75:
-            fsize = 6 * ()
+            fsize = 6
             fsizet = 10
         else:
             fsize = 7
             fsizet = 14
-
         #fsize = np.floor(.06 * self.hgt)
         #fsizet = np.floor(.06 * self.hgt)
 
-        self.title_font = QtGui.QFont('Helvetica', fsizet + (self.hgt * 0.006))
+        self.title_font = QtGui.QFont('Helvetica', fsizet + (self.hgt * 0.01))
         self.title_metrics = QtGui.QFontMetrics( self.title_font )
+        self.title_height = self.title_metrics.xHeight() + 5 + (self.hgt * 0.03)
 
-        self.title_height = self.title_metrics.xHeight() + 5 + (self.hgt * 0.003)
-
-        self.label_font = QtGui.QFont('Helvetica', fsize + 2 + (self.hgt * 0.0045))
-        self.environment_trace_font = QtGui.QFont('Helvetica', 11 + (self.hgt * 0.0045))
+        self.label_size =  fsize + 2 + (self.hgt * 0.0045)
+        self.label_font = QtGui.QFont('Helvetica', self.label_size)
+        self.env_trace_fsize = 11 + (self.hgt * 0.0045)
+        self.environment_trace_font = QtGui.QFont('Helvetica', self.env_trace_fsize)
         self.in_plot_font = QtGui.QFont('Helvetica', fsize + (self.hgt * 0.0045))
         self.esrh_font = QtGui.QFont('Helvetica', fsize + 2 + (self.hgt * 0.0045))
         self.hght_font = QtGui.QFont('Helvetica', 9 + (self.hgt * 0.0045))
 
         self.esrh_metrics = QtGui.QFontMetrics( self.esrh_font )
-        self.esrh_height = self.esrh_metrics.xHeight() + 9 + (self.hgt * 0.0045)
+        self.esrh_height = self.esrh_metrics.xHeight() + (self.hgt * 0.0045)
         self.plotBitMap = QtGui.QPixmap(self.width(), self.height())
         self.saveBitMap = None
         self.plotBitMap.fill(self.bg_color)
@@ -1013,7 +1013,9 @@ class plotSkewT(backgroundSkewT):
 
         x = self.tmpc_to_pix(xbounds, [1000.,1000.])
         y = self.originy + self.pres_to_pix(plevel) / self.scale
-        pen = QtGui.QPen(color, 1, QtCore.Qt.SolidLine)
+        pen = QtGui.QPen(color)
+        pen.setWidth(1)
+        pen.setStyle(QtCore.Qt.SolidLine)
         qp.setPen(pen)
         qp.drawLine(x[0], y, x[1], y)
         rect1 = QtCore.QRectF(self.tmpc_to_pix(29, 1000.), y-3, x[1] - x[0], 4) 
@@ -1142,9 +1144,9 @@ class plotSkewT(backgroundSkewT):
             x2 = self.tmpc_to_pix(-33, 1000)
             y1 = self.originy + self.pres_to_pix(pbot) / self.scale
             y2 = self.originy + self.pres_to_pix(ptop) / self.scale
-            rect1 = QtCore.QRectF(x2, y1+4, 25, self.esrh_height)
-            rect2 = QtCore.QRectF(x2, y2-self.esrh_height, 50, self.esrh_height)
-            rect3 = QtCore.QRectF(x1-15, y2-self.esrh_height, 50, self.esrh_height)
+            rect1 = QtCore.QRectF(x2, y1-(self.esrh_height)/2., 25, self.esrh_height)
+            rect2 = QtCore.QRectF(x2, y2-(self.esrh_height)/2., 50, self.esrh_height)
+            rect3 = QtCore.QRectF(x1-15, y2-self.esrh_height-5, 50, self.esrh_height)
             pen = QtGui.QPen(self.bg_color, 0, QtCore.Qt.SolidLine)
             brush = QtGui.QBrush(self.bg_color, QtCore.Qt.SolidPattern)
             qp.setPen(pen)
@@ -1215,6 +1217,7 @@ class plotSkewT(backgroundSkewT):
         '''
         qp.setClipping(True)
         pen = QtGui.QPen(QtGui.QColor(color), width, style)
+        pen.setWidth(width)
         brush = QtGui.QBrush(QtCore.Qt.NoBrush)
         qp.setPen(pen)
         qp.setBrush(brush)
@@ -1260,7 +1263,7 @@ class plotSkewT(backgroundSkewT):
             qp.setPen(pen)
             qp.setFont(self.environment_trace_font)
             qp.drawText(rect, QtCore.Qt.AlignCenter, tab.utils.INT2STR(label))
-            qp.setClipping(True)
+            qp.setClipping(False)
 
     def drawSTDEV(self, pres, data, stdev, color, qp, width=1):
         '''

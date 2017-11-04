@@ -54,13 +54,13 @@ class backgroundHodo(QtWidgets.QFrame):
             fsize = 7
         else:
             fsize = 9
-        self.label_font = QtGui.QFont('Helvetica', fsize + (self.hgt * 0.0045))
-        self.critical_font = QtGui.QFont('Helvetica', fsize + 2 +  (self.hgt * 0.0045))
-        self.readout_font = QtGui.QFont('Helvetica', 11 +  (self.hgt * 0.0045))
+        self.label_font = QtGui.QFont('Helvetica', fsize + (self.hgt * 0.01))
+        self.critical_font = QtGui.QFont('Helvetica', fsize + 2 +  (self.hgt * 0.01))
+        self.readout_font = QtGui.QFont('Helvetica', 11 + (self.hgt * 0.01))
         self.label_metrics = QtGui.QFontMetrics( self.label_font )
         self.critical_metrics = QtGui.QFontMetrics( self.critical_font )
-        self.label_height = self.label_metrics.xHeight() + 5 +  (self.hgt * 0.0045)
-        self.critical_height = self.critical_metrics.xHeight() + 5 +  (self.hgt * 0.0045)
+        self.label_height = self.label_metrics.xHeight() + 5 +  (self.hgt * 0.01)
+        self.critical_height = self.critical_metrics.xHeight() + 5 +  (self.hgt * 0.01)
 
         self.plotBitMap = QtGui.QPixmap(self.width(), self.height())
         self.saveBitMap = None
@@ -379,7 +379,7 @@ class plotHodo(backgroundHodo):
         self.bndyReadout.setStyleSheet("QLabel {"
             "  background-color: rgb(0, 0, 0);"
             "  border-width: 0px;"
-            "  font-size: 11px;"
+            "  font-size: 12px;"
             "  color: #00FF00;}")
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -1064,7 +1064,7 @@ class plotHodo(backgroundHodo):
             mw_spd = tab.utils.KTS2MS(mw_spd)
 
         mw_str = tab.utils.INT2STR(self.mean_lcl_el_vec[0]) + '/' + tab.utils.INT2STR(mw_spd)
-        qp.drawText(mw_rect, QtCore.Qt.AlignCenter, mw_str)
+        qp.drawText(mw_rect, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, mw_str)
 
     def drawCorfidi(self, qp):
         '''
@@ -1128,8 +1128,8 @@ class plotHodo(backgroundHodo):
 
         up_stuff = tab.utils.INT2STR(self.upshear[0]) + '/' + tab.utils.INT2STR(up_spd)
         dn_stuff = tab.utils.INT2STR(self.downshear[0]) + '/' + tab.utils.INT2STR(dn_spd)
-        qp.drawText(up_rect, QtCore.Qt.AlignCenter, "UP=" + up_stuff)
-        qp.drawText(dn_rect, QtCore.Qt.AlignCenter, "DN=" + dn_stuff)
+        qp.drawText(up_rect, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, "UP=" + up_stuff)
+        qp.drawText(dn_rect, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, "DN=" + dn_stuff)
 
 
     def drawSMV(self, qp):
@@ -1221,8 +1221,8 @@ class plotHodo(backgroundHodo):
 
         rm_stuff = tab.utils.INT2STR(self.bunkers_right_vec[0]) + '/' + tab.utils.INT2STR(rm_spd)
         lm_stuff = tab.utils.INT2STR(self.bunkers_left_vec[0]) + '/' + tab.utils.INT2STR(lm_spd)
-        qp.drawText(rm_rect, QtCore.Qt.AlignCenter, rm_stuff + " RM")
-        qp.drawText(lm_rect, QtCore.Qt.AlignCenter, lm_stuff + " LM")
+        qp.drawText(rm_rect, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, rm_stuff + " RM")
+        qp.drawText(lm_rect, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, lm_stuff + " LM")
 
     def drawCriticalAngle(self, qp):
         '''
@@ -1265,7 +1265,8 @@ class plotHodo(backgroundHodo):
                     critical_angle = self.prof.left_critical_angle
                 else:
                     critical_angle = self.prof.right_critical_angle
-                qp.drawText(rect, QtCore.Qt.AlignLeft, 'Critical Angle = ' + tab.utils.INT2STR(critical_angle) + u"\u00B0")
+                qp.setClipping(False)
+                qp.drawText(rect, QtCore.Qt.TextDontClip | QtCore.Qt.AlignLeft, 'Critical Angle = ' + tab.utils.INT2STR(critical_angle) + u"\u00B0")
 
     def draw_hodo(self, qp, prof, colors, width=2):
         '''

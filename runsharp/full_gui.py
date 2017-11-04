@@ -247,6 +247,7 @@ class Picker(QWidget):
         -------
         dropdown : a QtGui.QComboBox object
         """
+        warnings.warn("Calling full_gui.dropdown_menu")
         ## create the dropdown menu
         dropdown = QComboBox()
         ## set the text as editable so that it can have centered text
@@ -267,7 +268,7 @@ class Picker(QWidget):
         :param list:
         :return:
         """
-
+        warnings.warn("Calling full_gui.update_list")
         if self.select_flag:
             self.select_all()
         self.profile_list.clear()
@@ -300,6 +301,8 @@ class Picker(QWidget):
         data sources
         :return:
         """
+        warnings.warn("Calling full_gui.update_datasource_dropdown")
+
         for i in range(self.model_dropdown.count()):
             self.model_dropdown.removeItem(0)
 
@@ -317,6 +320,8 @@ class Picker(QWidget):
         information.
         :return:
         """
+        warnings.warn("Calling full_gui.update_run_dropdown")
+
         if self.model.startswith("Local"):
             url = self.data_sources[self.model].getURLList(outlet="Local")[0].replace("file://", "")
             getTimes = lambda: self.data_sources[self.model].getAvailableTimes(url)
@@ -342,6 +347,7 @@ class Picker(QWidget):
         self.async_id = self.async.post(getTimes, update)
 
     def map_link(self, point):
+        warnings.warn("Calling full_gui.map_link")
         """
         Change the text of the button based on the user click.
         """
@@ -372,6 +378,8 @@ class Picker(QWidget):
 
     @crasher(exit=False)
     def complete_name(self):
+        warnings.warn("Calling full_gui.complete_name")
+
         """
         Handles what happens when the user clicks a point on the map
         """
@@ -406,6 +414,8 @@ class Picker(QWidget):
                         break
 
     def get_model(self, index):
+        warnings.warn("Calling full_gui.get_model")
+
         """
         Get the user's model selection
         """
@@ -421,6 +431,8 @@ class Picker(QWidget):
         """
         Get the user's run hour selection for the model
         """
+        warnings.warn("Calling full_gui.get_run")
+
         self.run = date.datetime.strptime(self.run_dropdown.currentText(), Picker.run_format)
         self.view.setCurrentTime(self.run)
         self.update_list()
@@ -429,6 +441,8 @@ class Picker(QWidget):
         """
         Get the user's map selection
         """
+        warnings.warn("Calling full_gui.get_map")
+
         proj = {'Northern Hemisphere':'npstere', 'Tropics':'merc', 'Southern Hemisphere':'spstere'}[self.map_dropdown.currentText()]
         self.view.setProjection(proj)
 
@@ -439,6 +453,8 @@ class Picker(QWidget):
         self.view.saveProjection(self.config)
 
     def select_all(self):
+        warnings.warn("Calling full_gui.select_all")
+
         items = self.profile_list.count()
         if not self.select_flag:
             for i in range(items):
@@ -455,6 +471,8 @@ class Picker(QWidget):
             self.select_flag = False
 
     def skewApp(self, filename=None, ntry=0):
+        warnings.warn("Calling full_gui.skewApp")
+
         """
         Create the SPC style SkewT window, complete with insets
         and magical funtimes.
@@ -470,8 +488,11 @@ class Picker(QWidget):
         ## if the profile is an archived file, load the file from
         ## the hard disk
         if filename is not None:
+            warnings.warn("\tTrying to load file from local disk...")
+
             model = "Archive"
             prof_collection, stn_id = self.loadArchive(filename)
+            warnings.warn("\tSuccessfully loaded the profile collection for this file...")
             disp_name = stn_id
             prof_idx = range(len(dates))
 
@@ -479,7 +500,9 @@ class Picker(QWidget):
             fhours = None
             observed = True
         else:
-        ## otherwise, download with the data thread
+            warnings.warn("\tLoading a real-time data stream...")
+
+            ## otherwise, download with the data thread
             prof_idx = self.prof_idx
             disp_name = self.disp_name
             run = self.run
@@ -488,12 +511,16 @@ class Picker(QWidget):
 
             if self.data_sources[model].getForecastHours() == [ 0 ]:
                 prof_idx = [ 0 ]
-	    print "Program is going to load the data."
+
+            warnings.warn("\tProgram is going to load the data...")
             ret = loadData(self.data_sources[model], self.loc, run, prof_idx, ntry=ntry)
 
             if isinstance(ret[0], Exception):
                 exc = ret[0]
+                print exc
                 failure = True
+                warnings.warn("\tThere was a problem with loadData() in obtaining the data from the Internet.")
+
             else:
                 prof_collection = ret[0]
 
@@ -505,6 +532,7 @@ class Picker(QWidget):
             prof_collection.setMeta('loc', disp_name)
             prof_collection.setMeta('fhour', fhours)
             prof_collection.setMeta('observed', observed)
+            print "OBSERVED?",observed
 
             if not observed:
                 # If it's not an observed profile, then generate profile objects in background.
@@ -514,11 +542,17 @@ class Picker(QWidget):
                 # If the SPCWindow isn't shown, set it up.
                 print "Made it to SPCWindow Constructor"
                 self.skew = SPCWindow(parent=self.parent(), cfg=self.config)
+                print" Constructed SPCWindow..."
                 self.parent().config_changed.connect(self.skew.centralWidget().updateConfig)
+                print "Updating config..."
                 self.skew.closed.connect(self.skewAppClosed)
+                print "connecting closed"
                 self.skew.show()
+                print 'Showing SPCWINdow'
 
+            print "focusing skewApp"
             self.focusSkewApp()
+            print "adding profile collection..."
             self.skew.addProfileCollection(prof_collection)
         else:
             raise exc
@@ -579,13 +613,18 @@ def loadData(data_source, loc, run, indexes, ntry=0, __text__=None, __prog__=Non
         dec = decoder((url, loc[0], loc[1]))
     else:
         decoder = data_source.getDecoder(loc, run, outlet_num=ntry)
+        print "Decoder found:", decoder
+
         url = data_source.getURL(loc, run, outlet_num=ntry)
+        print "Getting URL:", url
         dec = decoder(url)
+        print "decoding data:", dec
 
     if __text__ is not None:
         __text__.emit("Creating Profiles")
 
     profs = dec.getProfiles(indexes=indexes)
+    print "Showing profiles:", profs
     return profs
 
 class Main(QMainWindow):

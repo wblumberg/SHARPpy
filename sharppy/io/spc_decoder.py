@@ -19,11 +19,11 @@ class SPCDecoder(Decoder):
         file_data = self._downloadFile()
         ## read in the file
         data = np.array([l.strip() for l in file_data.split('\n')])
-
+        #print data
         ## necessary index points
         title_idx = np.where( data == '%TITLE%')[0][0]
-        start_idx = np.where( data == '%RAW%' )[0] + 1
-        finish_idx = np.where( data == '%END%')[0]
+        start_idx = np.where( data == '%RAW%' )[0][0] + 1
+        finish_idx = np.where( data == '%END%')[0][0]
 
         ## create the plot title
         data_header = data[title_idx + 1].split()
@@ -41,7 +41,7 @@ class SPCDecoder(Decoder):
             # If the strptime accidently makes the sounding in the future (like with SARS archive)
             # i.e. a 1957 sounding becomes 2057 sounding...ensure that it's a part of the 20th century
             time = datetime.strptime('19' + data_header[1][:11], '%Y%m%d/%H%M')
-
+        #print start_idx, finish_idx
         ## put it all together for StringIO
         full_data = '\n'.join(data[start_idx : finish_idx][:])
         sound_data = StringIO( full_data )
@@ -60,6 +60,8 @@ class SPCDecoder(Decoder):
         # Force latitude to be 35 N. Figure out a way to fix this later.
         prof = profile.create_profile(profile='raw', pres=pres, hght=hght, tmpc=tmpc, dwpc=dwpc,
             wdir=wdir, wspd=wspd, location=location, date=time, latitude=lat, missing=-9999.00)
+        #for i in range(len(prof.tmpc)):
+         #   print prof.pres[i], prof.hght[i], prof.tmpc[i], prof.dwpc[i]
 
         prof_coll = prof_collection.ProfCollection(
             {'':[ prof ]}, 
@@ -67,5 +69,6 @@ class SPCDecoder(Decoder):
         )
 
         prof_coll.setMeta('loc', location)
+        #print "Returning the profile collection..."
         return prof_coll
 

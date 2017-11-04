@@ -288,7 +288,10 @@ class DataSource(object):
         return prop
 
     def _getOutletWithProfile(self, stn, cycle_dt, outlet_num=0):
+        print outlet_num
+        outlet_num = 0
         use_outlets = [ out for out, cfg in self._outlets.iteritems() if cfg.hasProfile(stn, cycle_dt) ]
+        print use_outlets, outlet_num, cycle_dt, stn
         try:
             outlet = use_outlets[outlet_num]
         except IndexError:
