@@ -43,21 +43,28 @@ class backgroundSkewT(QtWidgets.QWidget):
         self.originy = 0. # self.size().height() / 2
         self.scale = 1.
         if self.physicalDpiX() > 75:
-            fsize = 6
+            fsize = 6 * ()
             fsizet = 10
         else:
             fsize = 7
             fsizet = 14
-        self.title_font = QtGui.QFont('Helvetica', fsizet)
+
+        #fsize = np.floor(.06 * self.hgt)
+        #fsizet = np.floor(.06 * self.hgt)
+
+        self.title_font = QtGui.QFont('Helvetica', fsizet + (self.hgt * 0.006))
         self.title_metrics = QtGui.QFontMetrics( self.title_font )
-        self.title_height = self.title_metrics.xHeight() + 5
-        self.title_font.setBold(True)
-        self.label_font = QtGui.QFont('Helvetica', fsize + 2)
-        self.environment_trace_font = QtGui.QFont('Helvetica', 11)
-        self.in_plot_font = QtGui.QFont('Helvetica', fsize)
-        self.esrh_font = QtGui.QFont('Helvetica', fsize + 2)
+
+        self.title_height = self.title_metrics.xHeight() + 5 + (self.hgt * 0.003)
+
+        self.label_font = QtGui.QFont('Helvetica', fsize + 2 + (self.hgt * 0.0045))
+        self.environment_trace_font = QtGui.QFont('Helvetica', 11 + (self.hgt * 0.0045))
+        self.in_plot_font = QtGui.QFont('Helvetica', fsize + (self.hgt * 0.0045))
+        self.esrh_font = QtGui.QFont('Helvetica', fsize + 2 + (self.hgt * 0.0045))
+        self.hght_font = QtGui.QFont('Helvetica', 9 + (self.hgt * 0.0045))
+
         self.esrh_metrics = QtGui.QFontMetrics( self.esrh_font )
-        self.esrh_height = self.esrh_metrics.xHeight() + 9
+        self.esrh_height = self.esrh_metrics.xHeight() + 9 + (self.hgt * 0.0045)
         self.plotBitMap = QtGui.QPixmap(self.width(), self.height())
         self.saveBitMap = None
         self.plotBitMap.fill(self.bg_color)
@@ -878,9 +885,10 @@ class plotSkewT(backgroundSkewT):
             pres = np.ma.masked_invalid(np.arange(self.prof.dgz_ptop, self.prof.dgz_pbot, 5)[::-1])
             tmpc = np.ma.masked_invalid(tab.interp.temp(self.prof, pres))
 
-            self.drawTrace(tmpc, self.dgz_color, qp, p=pres, label=False)
-            self.draw_sig_levels(qp, plevel=self.prof.dgz_pbot, color=QtGui.QColor("#F5D800"))
-            self.draw_sig_levels(qp, plevel=self.prof.dgz_ptop, color=QtGui.QColor("#F5D800"))
+            qp.setFont(self.hght_font)
+            self.drawTrace(tmpc, QtGui.QColor("#F5D800"), qp, p=pres, label=False)
+            self.draw_sig_levels(qp, plevel=self.prof.dgz_pbot, color="#F5D800")
+            self.draw_sig_levels(qp, plevel=self.prof.dgz_ptop, color="#F5D800")
 
         self.drawTrace(self.dwpc, self.dewp_color, qp, stdev=self.dew_stdev)
 
@@ -979,8 +987,7 @@ class plotSkewT(backgroundSkewT):
 
     def draw_height(self, h, qp):
         qp.setClipping(True)
-        self.hght_font = QtGui.QFont('Helvetica', 9)
-        pen = QtGui.QPen(self.hgt_color, 1, QtCore.Qt.SolidLine)
+        pen = QtGui.QPen(QtCore.Qt.red, 1, QtCore.Qt.SolidLine)
         qp.setPen(pen)
         qp.setFont(self.hght_font)
         offset = 10
@@ -1041,6 +1048,7 @@ class plotSkewT(backgroundSkewT):
             y = self.originy + self.pres_to_pix(lclp) / self.scale
             pen = QtGui.QPen(self.lcl_mkr_color, 2, QtCore.Qt.SolidLine)
             qp.setPen(pen)
+            qp.setFont(self.hght_font)
             qp.drawLine(x[0], y, x[1], y)
             rect1 = QtCore.QRectF(x[0], y+6, x[1] - x[0], 4) 
             qp.drawText(rect1, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, "LCL")
@@ -1049,6 +1057,7 @@ class plotSkewT(backgroundSkewT):
             y = self.originy + self.pres_to_pix(lfcp) / self.scale
             pen = QtGui.QPen(self.lfc_mkr_color, 2, QtCore.Qt.SolidLine)
             qp.setPen(pen)
+            qp.setFont(self.hght_font)
             qp.drawLine(x[0], y, x[1], y)
             rect2 = QtCore.QRectF(x[0], y-8, x[1] - x[0], 4) 
             qp.drawText(rect2, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, "LFC")
@@ -1057,6 +1066,7 @@ class plotSkewT(backgroundSkewT):
             y = self.originy + self.pres_to_pix(elp) / self.scale
             pen = QtGui.QPen(self.el_mkr_color, 2, QtCore.Qt.SolidLine)
             qp.setPen(pen)
+            qp.setFont(self.hght_font)
             qp.drawLine(x[0], y, x[1], y)
             rect3 = QtCore.QRectF(x[0], y-8, x[1] - x[0], 4) 
             qp.drawText(rect3, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, "EL")
