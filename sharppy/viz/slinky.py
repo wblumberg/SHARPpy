@@ -251,7 +251,8 @@ class plotSlinky(backgroundSlinky):
         ## scale the vector to be visible in the window
         if tab.utils.QC(self.smu) and tab.utils.QC(self.smv):
             wdir, wspd = tab.utils.comp2vec(self.smu, self.smv)
-            u, v = tab.utils.vec2comp(wdir, 3000)
+            #print type(wdir)
+            u, v = tab.utils.vec2comp(np.atleast_1d(wdir), [3000])
             ## convert the unit space to pixel space
             motion_x, motion_y = self.xy_to_pix(u,v)
             center_x, center_y = self.xy_to_pix(0,0)
