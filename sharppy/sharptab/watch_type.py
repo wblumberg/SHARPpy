@@ -191,7 +191,7 @@ def posneg_temperature(prof, start=-1):
         tdef1 = (0 - te1) / thermo.ctok(te1);
         tdef2 = (0 - te2) / thermo.ctok(te2);
         lyrlast = lyre;
-        lyre = 9.8 * (tdef1 + tdef2) / 2.0 * (h2 - h1);
+        lyre = constants.G * (tdef1 + tdef2) / 2.0 * (h2 - h1);
 
         # Has a warm layer been found yet?
         if te2 > 0:
@@ -302,7 +302,7 @@ def posneg_wetbulb(prof, start=-1):
         tdef1 = (0 - te1) / thermo.ctok(te1);
         tdef2 = (0 - te2) / thermo.ctok(te2);
         lyrlast = lyre;
-        lyre = 9.8 * (tdef1 + tdef2) / 2.0 * (h2 - h1);
+        lyre = constants.G * (tdef1 + tdef2) / 2.0 * (h2 - h1);
 
         # Has a warm layer been found yet?
         if te2 > 0:
