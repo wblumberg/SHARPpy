@@ -765,8 +765,8 @@ def _guess_Tw(thetae, p):
     '''
     thetae, p = np.atleast_1d(thetae, p)
     t_e = equiv_t(thetae, p)  # returns in Kelvin
-    nondim_pres = np.power(p / p_0, 1. / lambda_factor)
-    normalized_t_e = np.power(C / t_e, lambda_factor)  # Unitless
+    nondim_pres = np.ma.power(p / p_0, 1. / lambda_factor)
+    normalized_t_e = np.ma.power(C / t_e, lambda_factor)  # Unitless
     D = (0.1859 * (p / 1000.) + 0.6512)**-1
 
     r_s = _e2r(_es(ktoc(t_e)), p)
@@ -814,7 +814,7 @@ def wetlift_rdj(theta_e, p):
     # Get the improved first guess of T_w along the pseudoadiabat (Eq 4.8-4.11)
     tau_n, t_e, nondim_pres = _guess_Tw(ctok(theta_e), p)
     tau_n = ctok(tau_n)  # Convert the first guess to Celsius
-    baseterm = np.power(C / t_e, lambda_factor)
+    baseterm = np.ma.power(C / t_e, lambda_factor)
     # Get the derivative terms to perform Newton's Method
     f_tau_pi = _f(tau_n, p)
     dlnf_dt, des_dt, drs_dt, dG_dt, es, rs = _dlnfdt(tau_n, p)
@@ -833,8 +833,12 @@ def wetlift_rdj(theta_e, p):
     # Compute the increment for the non-accelerated method
     lin_tau_n2 = tau_n - (c / df_dt)
     # Pick the accelerated method root that is closest to the result from the non-accelerated method.
-    idx = np.argmin(np.abs(np.asarray([quad_tau_n1, quad_tau_n2]) - lin_tau_n2), axis=0)
-    pseudoadiabat = np.asarray([quad_tau_n1, quad_tau_n2])[idx[0], :]
+    #print quad_tau_n1, quad_tau_n2, lin_tau_n2, p
+    idx = np.ma.argmin(np.ma.abs(np.ma.asarray([quad_tau_n1, quad_tau_n2]) - lin_tau_n2), axis=0)
+    idx_true = np.where(np.ma.asarray(theta_e).mask == False)[0][0]
+    #print idx, idx_true
+    pseudoadiabat = np.ma.asarray([quad_tau_n1, quad_tau_n2])[idx[idx_true], :]
+    #print pseudoadiabat
     return pseudoadiabat
 
 """

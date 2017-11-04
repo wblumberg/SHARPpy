@@ -305,7 +305,7 @@ class BasicProfile(Profile):
         if not qc_tools.isWSPDValid(self.wspd) and self.strictQC:
             qc_tools.raiseError("Invalid wind speed array. Array contains a value < 0 knots.", ValueError)
         if not qc_tools.isWDIRValid(self.wdir) and self.strictQC:
-            qc_tools.raiseError("Invalid wind direction array. Array contains a value < 0 degrees or value >= 360 degrees.", ValueError)     
+            qc_tools.raiseError("Invalid wind direction array. Array contains a value < 0 degrees.", ValueError)
 
 
         self.logp = np.log10(self.pres.copy())
@@ -368,13 +368,14 @@ class BasicProfile(Profile):
             Array of wet bulb profile
             '''
         if method == 'bolton':
-            wetbulb = thermo.wetlift(self.pres, self.tmpc, self.pres, theta_e=self.thetae, method='bolton') 
+            wetbulb = thermo.wetlift(self.pres, self.tmpc, self.pres, theta_e=thermo.ktoc(self.thetae), method='bolton')
         else:
             wetbulb = ma.empty(self.pres.shape[0])
             for i in range(len(self.v)):
                 wetbulb[i] = thermo.wetbulb( self.pres[i], self.tmpc[i], self.dwpc[i] )
             wetbulb[wetbulb == self.missing] = ma.masked
             wetbulb.set_fill_value(self.missing)
+
         return wetbulb
     
     def get_theta_profile(self, method='bolton'):
@@ -412,10 +413,10 @@ class BasicProfile(Profile):
         else:
             thetae = ma.empty(self.pres.shape[0])
             for i in range(len(self.v)):
-                thetae[i] = thermo.ctok( thermo.thetae(self.pres[i], self.tmpc[i], self.dwpc[i]) , method=method)
+                thetae[i] = thermo.thetae(self.pres[i], self.tmpc[i], self.dwpc[i], method=method)
         thetae[thetae == self.missing] = ma.masked
         thetae.set_fill_value(self.missing)
-        return thetae
+        return thermo.ctok( thetae )
 
 
 

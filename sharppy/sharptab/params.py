@@ -2026,7 +2026,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
 
         # Is this the freezing level
         if te2 < 0. and not utils.QC(pcl.bfzl):
-            pe3 = pelast = ptraces[i - iter_ranges[0] - 1]
+            pe3 = ptraces[i - iter_ranges[0] - 1]
             h3 = interp.hght(prof, pe3)
             te3 = tv_env[i - iter_ranges[0] - 1]
             tp3 = tv_pcl[i - iter_ranges[0] - 1]  # in virtual tempreature space
@@ -2047,7 +2047,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
 
         # Is this the -10C level
         if te2 < -10. and not utils.QC(pcl.wm10c):
-            pe3 = pelast = ptraces[i - iter_ranges[0] - 1]
+            pe3 = ptraces[i - iter_ranges[0] - 1]
             h3 = interp.hght(prof, pe3)
             te3 = tv_env[i - iter_ranges[0] - 1]
             tp3 = tv_pcl[i - iter_ranges[0] - 1]  # in virtual tempreature space
@@ -2068,7 +2068,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
 
         # Is this the -20C level
         if te2 < -20. and not utils.QC(pcl.wm20c):
-            pe3 = pelast = ptraces[i - iter_ranges[0] - 1]
+            pe3 = ptraces[i - iter_ranges[0] - 1]
             h3 = interp.hght(prof, pe3)
             te3 = tv_env[i - iter_ranges[0] - 1]
             tp3 = tv_pcl[i - iter_ranges[0] - 1]  # in virtual tempreature space
@@ -2089,7 +2089,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
 
         # Is this the -30C level
         if te2 < -30. and not utils.QC(pcl.wm30c):
-            pe3 = pelast = ptraces[i - iter_ranges[0] - 1]
+            pe3 = ptraces[i - iter_ranges[0] - 1]
             h3 = interp.hght(prof, pe3)
             te3 = tv_env[i - iter_ranges[0] - 1]
             tp3 = tv_pcl[i - iter_ranges[0] - 1]  # in virtual tempreature space
@@ -2113,7 +2113,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
             # Is the 3000 m level somewhere between the top (2) and bottom (1) of the layer?
             if interp.to_agl(prof, h1) <= 3000. and interp.to_agl(prof, h2) >= 3000. and not utils.QC(pcl.b3km):
                 # print "Found the 3000 m level."
-                pe3 = pelast = ptraces[i - iter_ranges[0] - 1]
+                pe3 = ptraces[i - iter_ranges[0] - 1]
                 h3 = interp.hght(prof, pe3)
                 te3 = tv_env[i - iter_ranges[0] - 1]
                 tp3 = tv_pcl[i - iter_ranges[0] - 1]
@@ -2139,7 +2139,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
         if pcl.lclhght < 6000.:
             # Is the 6000 m level somewhere between the top (2) and bottom (1) of the layer?
             if interp.to_agl(prof, h1) <= 6000. and interp.to_agl(prof, h2) >= 6000. and not utils.QC(pcl.b6km):
-                pe3 = pelast = ptraces[i - iter_ranges[0] - 1]
+                pe3 = ptraces[i - iter_ranges[0] - 1]
                 h3 = interp.hght(prof, pe3)
                 te3 = tv_env[i - iter_ranges[0] - 1]
                 tp3 = tv_pcl[i - iter_ranges[0] - 1]
@@ -2180,23 +2180,24 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
                 pcl.mplpres = ma.masked
             else:
                 pe_range = np.arange(pe3, pe2 - 5, -5)
-                tp3_range = thermo.wetlift(pe2, tp3, pe_range, pcl.thetae, method=method)
-                idx = np.where(interp.vtmp(prof, pe_range) - tp3_range > 0)[0][0]
-                pe3 = pe_range[idx]
+                if len(pe_range) != 0: # Try to correct pe3 to more precisely determine the LFC location
+                    tp3_range = thermo.wetlift(pe2, tp3, pe_range, pcl.thetae, method=method)
+                    idx = np.where(interp.vtmp(prof, pe_range) - tp3_range > 0)[0]
+                    if len(idx) != 0:
+                        pe3 = pe_range[idx[0]]
 
-                if pe3 > 0:
-                    # Found a LFC, store height/pres and reset EL/MPL
-                    pcl.lfcpres = pe3
-                    pcl.lfchght = interp.to_agl(prof, interp.hght(prof, pe3))
-                    tote = 0.
-                    li_max = -9999.
-                    if cap_strength < 0.: cap_strength = 0.
-                    pcl.cap = cap_strength
-                    pcl.cappres = cap_strengthpres
+                # Found a LFC, store height/pres and reset EL/MPL
+                pcl.lfcpres = pe3
+                pcl.lfchght = interp.to_agl(prof, interp.hght(prof, pe3))
+                tote = 0.
+                li_max = -9999.
+                if cap_strength < 0.: cap_strength = 0.
+                pcl.cap = cap_strength
+                pcl.cappres = cap_strengthpres
 
-                    pcl.elpres = ma.masked
-                    pcl.elhght = ma.masked
-                    pcl.mplpres = ma.masked
+                pcl.elpres = ma.masked
+                pcl.elhght = ma.masked
+                pcl.mplpres = ma.masked
 
             # Hack to force LFC to be at least at the LCL
             if pcl.lfcpres >= pcl.lclpres:
@@ -2217,7 +2218,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
             if len(idx) == 0:
                 pe3 = pe3
             else:
-                pe3 = pe_range[idx]
+                pe3 = pe_range[idx[0]]
                 # TODO: Rework this logic to mimic the loop using the Numpy trickery
             pcl.elpres = pe3
             pcl.elhght = interp.to_agl(prof, interp.hght(prof, pcl.elpres))
@@ -2296,7 +2297,6 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
         pcl.bminpres = pcl.ptrace[idx][idx2]
         pcl.bminhght = interp.hght(prof, pcl.bminpres)
     return pcl
-
 
 def parcelx_wobus(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     '''
@@ -2866,7 +2866,7 @@ def effective_inflow_layer(prof, ecape=100, ecinh=-250, **kwargs):
             mupcl = prof.mupcl
         except:
             mulplvals = DefineParcel(prof, flag=3, pres=300)
-            mupcl = cape(prof, lplvals=mulplvals)
+            mupcl = parcelx(prof, lplvals=mulplvals)
     mucape   = mupcl.bplus
     mucinh = mupcl.bminus
     pbot = ma.masked
@@ -3329,7 +3329,7 @@ def sig_severe(prof, **kwargs):
     sigsevere = mlcape * shr06
     return sigsevere
 
-def dcape(prof):
+def dcape(prof, method='bolton'):
     '''
         Downdraft CAPE (DCAPE)
         
@@ -3390,6 +3390,7 @@ def dcape(prof):
     tote = 0
     lyre = 0
 
+
     # To keep track of the parcel trace from the downdraft
     ttrace = [tp1] 
     ptrace = [upper]
@@ -3410,7 +3411,7 @@ def dcape(prof):
             tdef1 = (tp1 - te1) / (thermo.ctok(te1))
             tdef2 = (tp2 - te2) / (thermo.ctok(te2))
             lyrlast = lyre
-            lyre = 9.8 * (tdef1 + tdef2) / 2.0 * (h2 - h1)
+            lyre = G * (tdef1 + tdef2) / 2.0 * (h2 - h1)
             tote += lyre
 
         ttraces[i] = tp2
@@ -3420,6 +3421,7 @@ def dcape(prof):
         te1 = te2
         h1 = h2
         tp1 = tp2
+
     drtemp = tp2 # Downrush temp in Celsius
 
     return tote, ma.concatenate((ttrace, ttraces[::-1])), ma.concatenate((ptrace, ptraces[::-1]))
