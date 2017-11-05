@@ -51,7 +51,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         #fsize = np.floor(.06 * self.hgt)
         #fsizet = np.floor(.06 * self.hgt)
 
-        self.title_font = QtGui.QFont('Helvetica', fsizet + (self.hgt * 0.01))
+        self.title_font = QtGui.QFont('Arial', fsizet + (self.hgt * 0.01))
         self.title_metrics = QtGui.QFontMetrics( self.title_font )
         self.title_height = self.title_metrics.xHeight() + 5 + (self.hgt * 0.03)
 

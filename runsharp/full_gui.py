@@ -696,6 +696,7 @@ class Main(QMainWindow):
 
     def exitApp(self):
         self.close()
+        print "Closing the app."
 
     @crasher(exit=False)
     def openFile(self):
