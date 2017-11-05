@@ -4,6 +4,7 @@ import numpy as np
 import numpy.ma as ma
 from sharppy.sharptab import interp, utils, thermo, winds
 from sharppy.sharptab.constants import *
+from datetime import datetime
 
 
 __all__ = ['DefineParcel', 'Parcel', 'inferred_temp_advection']
@@ -1962,17 +1963,36 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
     tv_env = prof.vtmp[iter_ranges]  # The environmental virtual temperature profile
     tv_pcl = thermo.virtemp(ptraces, ttraces, ttraces)  # Covert the parcel temperature into virtual temperature space
 
+    pcl.ptrace = ma.concatenate((ptrace, ptraces))
+    pcl.ttrace = ma.concatenate((ttrace, tv_pcl))
+
     for i in iter_ranges:
         if not utils.QC(prof.tmpc[i]): continue  # Continue if the temperature value given is invalid
         pe2 = ptraces[i - iter_ranges[0]]
         h2 = prof.hght[i]
         te2 = tv_env[i - iter_ranges[0]]
-        tp2 = ttraces[i - iter_ranges[0]]  # thermo.wetlift(pe1, tp1, pe2) # lift the parcel to the next level.
-        tdef1 = (thermo.virtemp(pe1, tp1, tp1) - te1) / thermo.ctok(
-            te1)  # normalized buoyancy at the bottom of the layer
+        tp2 = ttraces[i - iter_ranges[0]]
+        #thermo.virtemp(pe1, tp1, tp1) this is the
+        tdef1 = (thermo.virtemp(pe1, tp1, tp1) - te1) / thermo.ctok(te1)  # normalized buoyancy at the bottom of the layer
         tdef2 = (thermo.virtemp(pe2, tp2, tp2) - te2) / thermo.ctok(te2)  # normalized buoyancy at the top of the layer
         lyrlast = lyre  # Save the layer energy to the last layer energy...this will be used to find levels where the energy sign reverses (e.g. LFC)
         lyre = G * (tdef1 + tdef2) / 2. * (h2 - h1)  # compute the layer energy (J/kg)
+        #print i, i - iter_ranges[1] + 1, len(pcl.ttrace), len(tv_pcl), tv_pcl[i - iter_ranges[0]], thermo.virtemp(pe1, tp1, tp1), te1, thermo.virtemp(pe2, tp2, tp2), te2, lyre
+
+        """
+        pe2 = ptraces[i - iter_ranges[0]]
+        h2 = prof.hght[i]
+        te2 = tv_env[i - iter_ranges[0]]
+        # tp2 = ttraces[i - iter_ranges[0]]  # thermo.wetlift(pe1, tp1, pe2) # lift the parcel to the next level.
+        tp2 = tv_pcl[i - iter_ranges[0]]
+        tp1 = pcl.ttrace[i - iter_ranges[1] + 1]
+        # thermo.virtemp(pe1, tp1, tp1) this is the
+        tdef1 = (tp1 - te1) / thermo.ctok(te1)  # normalized buoyancy at the bottom of the layer
+        tdef2 = (tp2 - te2) / thermo.ctok(te2)  # normalized buoyancy at the top of the layer
+        lyrlast = lyre  # Save the layer energy to the last layer energy...this will be used to find levels where the energy sign reverses (e.g. LFC)
+        lyre = G * (tdef1 + tdef2) / 2. * (h2 - h1)  # compute the layer energy (J/kg)
+        #print i, i - iter_ranges[1] + 1, len(pcl.ttrace), len(tv_pcl), tp1, tp1, te1, tp2, te2, lyre
+        """
 
         # Add layer energy to total positive if lyre > 0
         if lyre > 0:
@@ -2002,10 +2022,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
         # Is this the top of the specified layer we're lifting the parcel over
         if i >= uptr and not utils.QC(pcl.bplus):
             # print "Found the top of the specified layer we're lifting over."
-            pe3 = pe1
-            h3 = h2
-            te3 = te1
-            tp3 = tp1
+
             lyrf = lyre
             if lyrf > 0:
                 pcl.bplus = totp - lyrf
@@ -2165,10 +2182,12 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
 
         # LFC Possibility (only if there's a positive energy layer above a negative energy layer.)
         if lyre >= 0. and lyrlast <= 0.:
+            dt = datetime.now()
             tp3 = tp1
             pe2 = pe1
             pe3 = pelast
             tp3 = tv_pcl[i - iter_ranges[0] - 1]
+            """
             if tv_env[i - iter_ranges[0] - 1] < tp3:
                 # Found an LFC, store height/pres and reset EL/MPL
                 pcl.lfcpres = pe3
@@ -2179,25 +2198,28 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
                 pcl.elhght = ma.masked
                 pcl.mplpres = ma.masked
             else:
-                pe_range = np.arange(pe3, pe2 - 5, -5)
-                if len(pe_range) != 0: # Try to correct pe3 to more precisely determine the LFC location
-                    tp3_range = thermo.wetlift(pe2, tp3, pe_range, pcl.thetae, method=method)
-                    idx = np.where(interp.vtmp(prof, pe_range) - tp3_range > 0)[0]
-                    if len(idx) != 0:
-                        pe3 = pe_range[idx[0]]
+            """
+            pe_range = np.arange(pe3, pe2 - 5, -5)
+            #print pe_range, pe2, pe3
+            if len(pe_range) != 0: # Try to correct pe3 to more precisely determine the LFC location
+                #dt2 = datetime.now()
+                tp3_range = thermo._guess_Tw(pe_range, np.ones(len(pe_range)) * pcl.thetae)[0]
+                tp3_range = thermo.virtemp(pe_range, tp3_range, tp3_range)
+                idx = np.argmin(np.abs(interp.vtmp(prof, pe_range) - tp3_range))
+                pe3 = pe_range[idx]
 
-                # Found a LFC, store height/pres and reset EL/MPL
-                pcl.lfcpres = pe3
-                pcl.lfchght = interp.to_agl(prof, interp.hght(prof, pe3))
-                tote = 0.
-                li_max = -9999.
-                if cap_strength < 0.: cap_strength = 0.
-                pcl.cap = cap_strength
-                pcl.cappres = cap_strengthpres
+            # Found a LFC, store height/pres and reset EL/MPL
+            pcl.lfcpres = pe3
+            pcl.lfchght = interp.to_agl(prof, interp.hght(prof, pe3))
+            tote = 0.
+            li_max = -9999.
+            if cap_strength < 0.: cap_strength = 0.
+            pcl.cap = cap_strength
+            pcl.cappres = cap_strengthpres
 
-                pcl.elpres = ma.masked
-                pcl.elhght = ma.masked
-                pcl.mplpres = ma.masked
+            pcl.elpres = ma.masked
+            pcl.elhght = ma.masked
+            pcl.mplpres = ma.masked
 
             # Hack to force LFC to be at least at the LCL
             if pcl.lfcpres >= pcl.lclpres:
@@ -2205,42 +2227,55 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
                 pcl.lfchght = pcl.lclhght
                 # print "Found an LFC."
 
+            print "LFC timing:", datetime.now() - dt
+
+
         # EL Possibility (only if there's a negative energy layer above a positive energy layer.)
         if lyre <= 0. and lyrlast >= 0. and totp > 0:
+            dt = datetime.now()
             # print "Found an EL."
             tp3 = tp1
             pe2 = pe1
             pe3 = pelast
             tp3 = tv_pcl[i - iter_ranges[0] - 1]
             pe_range = np.arange(pe3, pe2 - 5, -5)
-            tp3_range = thermo.wetlift(pe2, tp3, pe_range, pcl.thetae, method=method)
-            idx = np.where(interp.vtmp(prof, pe_range) - tp3_range < 0)[0]
-            if len(idx) == 0:
-                pe3 = pe3
-            else:
-                pe3 = pe_range[idx[0]]
-                # TODO: Rework this logic to mimic the loop using the Numpy trickery
+            if len(pe_range) != 0:
+                tp3_range = thermo._guess_Tw(pe_range, np.ones(len(pe_range)) * pcl.thetae)[0]
+                tp3_range = thermo.virtemp(pe_range, tp3_range, tp3_range)
+                idx = np.argmin(np.abs(interp.vtmp(prof, pe_range) - tp3_range))
+                pe3 = pe_range[idx]
+            # TODO: Rework this logic to mimic the loop using the Numpy trickery
             pcl.elpres = pe3
             pcl.elhght = interp.to_agl(prof, interp.hght(prof, pcl.elpres))
             pcl.mplpres = ma.masked
             pcl.limax = -li_max
             pcl.limaxpres = li_maxpres
+            print "EL timing:", datetime.now() - dt
 
+        dt = datetime.now()
         # MPL Possibility (only if total energy of the profile is 0 J/kg)
         if tote < 0. and not utils.QC(pcl.mplpres) and utils.QC(pcl.elpres):
             # print "Found an MPL."
             pe3 = pelast
-            h3 = interp.hght(prof, pe3)
             te3 = interp.vtmp(prof, pe3)
-            tp3 = thermo.wetlift(pe1, tp1, pe3, pcl.thetae, method=method)
+            tp3 = ttraces[i-iter_ranges[0] - 1]
+
             totx = tote - lyre
             pe2 = pelast
-
+            #TODO: Provide some way to speed this section up
+            #      1.) Remove totx loop and make RDJ results 2D and by using np.cumsum.
+            if totx > 0:
+                p_range = np.arange(pe2, prof.pres[prof.top], -1)
+                pseudo = thermo.wetlift(pe3, tp3, p_range, pcl.thetae, method=method)
+                hght = interp.hght(prof, p_range)
+                envTv = interp.vtmp(prof, p_range)
+                wetlift_idx = 1
             while totx > 0:
                 pe2 -= 1
-                te2 = interp.vtmp(prof, pe2)
-                tp2 = thermo.wetlift(pe3, tp3, pe2, pcl.thetae, method=method)  # lift from pe3 to pe2
-                h2 = interp.hght(prof, pe2)
+                wetlift_idx += 1
+                te2 = envTv[wetlift_idx]
+                tp2 = pseudo[wetlift_idx]
+                h2 = hght[wetlift_idx]
                 tdef3 = (thermo.virtemp(pe3, tp3, tp3) - te3) / \
                         thermo.ctok(te3)
                 tdef2 = (thermo.virtemp(pe2, tp2, tp2) - te2) / \
@@ -2253,9 +2288,9 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
 
             pcl.mplpres = pe2
             pcl.mplhght = interp.to_agl(prof, interp.hght(prof, pe2))
+            print "MPL timing:", datetime.now() - dt
 
         # 500 hPa Lifted Index
-        # Should enter this logic one time (as long as the pressure is less than or equal to 500)
         if prof.pres[i] <= 500. and not utils.QC(pcl.li5):
             if pe1 != 500:
                 a = interp.vtmp(prof, 500.)
@@ -2267,7 +2302,6 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
             pcl.li5 = a - b
 
         # 300 hPa Lifted Index
-        # Should enter this logic one time (as long as the pressure is less than or equal to 500)
         if prof.pres[i] <= 300. and not utils.QC(pcl.li3):
             if pe1 != 300:
                 a = interp.vtmp(prof, 300.)
@@ -2285,8 +2319,6 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
 
     # Save params and parcel trace
     if np.floor(pcl.bplus) == 0: pcl.bminus = 0.
-    pcl.ptrace = ma.concatenate((ptrace, ptraces))
-    pcl.ttrace = ma.concatenate((ttrace, tv_pcl))
 
     # Find minimum buoyancy from Trier et al. 2014, Part 1
     idx = np.ma.where(pcl.ptrace >= 500.)[0]
@@ -2661,6 +2693,7 @@ def parcelx_wobus(prof, pbot=None, ptop=None, dp=-1, **kwargs):
 
         # LFC Possibility
         if lyre >= 0. and lyrlast <= 0.:
+            dt = datetime.now()
             tp3 = tp1
             #te3 = te1
             pe2 = pe1
@@ -2695,8 +2728,11 @@ def parcelx_wobus(prof, pbot=None, ptop=None, dp=-1, **kwargs):
                 pcl.lfcpres = pcl.lclpres
                 pcl.lfchght = pcl.lclhght
 
+            print "LFC timing:", datetime.now() - dt
+
         # EL Possibility
         if lyre <= 0. and lyrlast >= 0.:
+            dt = datetime.now()
             tp3 = tp1
             #te3 = te1
             pe2 = pe1
@@ -2708,7 +2744,10 @@ def parcelx_wobus(prof, pbot=None, ptop=None, dp=-1, **kwargs):
             pcl.mplpres = ma.masked
             pcl.limax = -li_max
             pcl.limaxpres = li_maxpres
-        
+
+            print "EL timing:", datetime.now() - dt
+
+        dt = datetime.now()
         # MPL Possibility
         if tote < 0. and not utils.QC(pcl.mplpres) and utils.QC(pcl.elpres):
             pe3 = pelast
@@ -2733,7 +2772,8 @@ def parcelx_wobus(prof, pbot=None, ptop=None, dp=-1, **kwargs):
                 pe3 = pe2
             pcl.mplpres = pe2
             pcl.mplhght = interp.to_agl(prof, interp.hght(prof, pe2))
-        
+            print "MPL timing:", datetime.now() - dt
+
         # 500 hPa Lifted Index
         if prof.pres[i] <= 500. and not utils.QC(pcl.li5):
             a = interp.vtmp(prof, 500.)

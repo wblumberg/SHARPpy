@@ -55,16 +55,15 @@ for flag in [1,3,4]:
         dt = datetime.now()
         pcl1 = params.parcelx(prof, method='wobus', flag=flag)
         tfl1 = datetime.now() - dt
-        print pcl1.bplus, pcl1.bminus, pcl1.lclhght, pcl1.lfchght, pcl1.elhght
+        print pcl1.bplus, pcl1.bminus, pcl1.lclhght, pcl1.lfchght, pcl1.elhght, pcl1.mplhght
         print "Time for Lift:",tfl1
 
         print "\nTest RDJ:"
         dt = datetime.now()
         pcl2 = params.parcelx(prof, method='bolton', flag=flag)
         tfl2 = datetime.now() - dt
-        print pcl2.bplus, pcl2.bminus, pcl2.lclhght, pcl2.lfchght, pcl2.elhght
+        print pcl2.bplus, pcl2.bminus, pcl2.lclhght, pcl2.lfchght, pcl2.elhght, pcl2.mplhght
         print "Time for Lift:", tfl2
-
         cape.append([pcl1.bplus, pcl2.bplus])
         cin.append([pcl1.bminus, pcl2.bminus])
         lcl.append([pcl1.lclhght, pcl2.lclhght])
@@ -72,16 +71,23 @@ for flag in [1,3,4]:
         el.append([pcl1.elhght, pcl2.elhght])
         time.append([tfl1.total_seconds(), tfl2.total_seconds()])
         print "\n\n"
-
+    #stop
+    print lfc
     cape = np.asarray(cape)
     cin = np.asarray(cin)
     lcl = np.asarray(lcl)
-    lfc = np.asarray(lfc)
-    el = np.asarray(el)
+    lfc = np.ma.asarray(lfc)
+    el = np.ma.asarray(el)
     time = np.asarray(time)
 
     for index in [time, cape, cin, lcl, lfc, el]:
+        index = np.ma.masked_invalid(index)
+        print index[:,0], index[:,1]
         plot(index[:,0], index[:,1], 'o')
+        xlim(np.ma.min(index),np.ma.max(index))
+        ylim(np.ma.min(index),np.ma.max(index))
+        plot([np.ma.min(index), np.ma.max(index)], [np.ma.min(index), np.ma.max(index)], 'k-')
         xlabel('WOBUS')
+        grid()
         ylabel("RDJ")
         show()
