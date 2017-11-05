@@ -3361,11 +3361,8 @@ def dcape(prof, method='bolton'):
     mask1 = prof_thetae.mask
     mask2 = prof.pres.mask
     mask = np.maximum( mask1, mask2 )
-    prof_thetae = prof_thetae[~mask]
-    prof_wetbulb = prof_wetbulb[~mask]
     pres = prof.pres[~mask]
     hght = prof.hght[~mask]
-    dwpc = prof.dwpc[~mask]
     tmpc = prof.tmpc[~mask]
     idx = np.where(pres >= sfc_pres - 400.)[0]
 
@@ -3381,19 +3378,18 @@ def dcape(prof, method='bolton'):
     upper = minp
     uptr = np.where(pres >= upper)[0]
     uptr = uptr[-1]
-    
+
     # Define parcel starting point
-    tp1 = thermo.wetbulb(upper, interp.temp(prof, upper), interp.dwpt(prof, upper))
     pe1 = upper
     te1 = interp.temp(prof, pe1)
+    tp1 = thermo.wetbulb(upper, te1, interp.dwpt(prof, upper))
     h1 = interp.hght(prof, pe1)
     tote = 0
     lyre = 0
 
 
     # To keep track of the parcel trace from the downdraft
-    ttrace = [tp1] 
-    ptrace = [upper]
+    ttrace = [tp1]
 
     # Lower the parcel to the surface moist adiabatically and compute
     # total energy (DCAPE)
@@ -3410,7 +3406,6 @@ def dcape(prof, method='bolton'):
         if utils.QC(te1) and utils.QC(te2):
             tdef1 = (tp1 - te1) / (thermo.ctok(te1))
             tdef2 = (tp2 - te2) / (thermo.ctok(te2))
-            lyrlast = lyre
             lyre = G * (tdef1 + tdef2) / 2.0 * (h2 - h1)
             tote += lyre
 
