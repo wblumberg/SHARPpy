@@ -69,6 +69,8 @@ class SPCDecoder(Decoder):
         )
 
         prof_coll.setMeta('loc', location)
-        #print "Returning the profile collection..."
+        prof_coll.setMeta('observed', True)
+        prof_coll.setMeta('base_time', time)
+
         return prof_coll
 

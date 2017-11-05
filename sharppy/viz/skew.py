@@ -4,11 +4,19 @@ from sharppy.sharptab.constants import *
 from sharppy.sharptab.profile import Profile, create_profile
 from sharppy.viz.draggable import Draggable
 from sharppy.viz.barbs import drawBarb
+<<<<<<< HEAD
 from PySide2 import QtGui, QtCore, QtWidgets
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 from PySide2.QtOpenGL import *
+=======
+from PySide import QtGui, QtCore
+from PySide.QtGui import *
+from PySide.QtCore import *
+from PySide.QtOpenGL import *
+from utils.utils import total_seconds
+>>>>>>> aede68cc38135164a9c2b8c851e0a42a428a69db
 
 from datetime import datetime, timedelta
 
@@ -25,7 +33,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Initialize the User Interface.
 
         '''
-        self.lpad = 30; self.rpad = 50
+        self.lpad = 30; self.rpad = 65
         self.tpad = 20; self.bpad = 20
         self.tlx = self.rpad; self.tly = self.tpad
         self.wid = self.size().width() - self.rpad
@@ -505,7 +513,11 @@ class plotSkewT(backgroundSkewT):
 
         plot_title = loc + '   ' + datetime.strftime(date, "%Y%m%d/%H%M")
         if model == "Archive":
-            plot_title += "  (User Selected" + modified_str + ")"
+            fhour_str = ""
+            if not prof_coll.getMeta('observed'):
+                fhour = int(total_seconds(date - prof_coll.getMeta('base_time')) / 3600)
+                fhour_str = " F%03d" % fhour
+            plot_title += "  (User Selected" + fhour_str + modified_str + ")"
         elif model == "Analog":
             date = prof_coll.getAnalogDate()
             plot_title = loc + '   ' + datetime.strftime(date, "%Y%m%d/%H%M")
@@ -513,8 +525,8 @@ class plotSkewT(backgroundSkewT):
         elif observed:
             plot_title += "  (Observed" + modified_str + ")"
         else:
-            fhour = prof_coll.getMeta('fhour', index=True)
-            plot_title += "  (" + run + "  " + model + "  " + fhour + modified_str + ")"
+            fhour = int(total_seconds(date - prof_coll.getMeta('base_time')) / 3600)
+            plot_title += "  (" + run + "  " + model + "  " + ("F%03d" % fhour) + modified_str + ")"
         return plot_title
 
     def liftparcellevel(self, i):
@@ -625,7 +637,6 @@ class plotSkewT(backgroundSkewT):
 
         self.sfc_units = kwargs['temp_units']
         self.wind_units = kwargs['wind_units']
-        self.use_left = kwargs['calc_vector'] == 'Left Mover'
 
         if update_gui:
             self.plotBitMap.fill(self.bg_color)

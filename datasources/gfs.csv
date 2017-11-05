@@ -641,7 +641,7 @@ KXMR,XMR,74794,Cocoa Beach,FL,US,28.468,-80.567,3,8,xmr
 ,,,000298,,,40.58,-111.63,2652,7,000298
 CYYR,YYR,71816,Goose Bay,NF,CA,53.33,-60.42,49,5,cyyr
 KOTX,OTX,72786,Spokane/WFO,WA,US,47.68,-117.63,727,8,kotx
-KVIH,VIH,72445,Rolla/Vichy,MO,US,38.13,-91.77,350,8,724456
+KVIH,VIH,72445,Rolla-Vichy,MO,US,38.13,-91.77,350,8,724456
 KSOW,SOW,,Show Low,AZ,US,34.265,-110.006,1954,6,sow
 ,,,915026,,,11.2,169.8,0,7,915026
 KMSL,MSL,,Muscle Shoals,AL,US,34.75,-87.61,164,6,kmsl
@@ -1095,7 +1095,7 @@ KLWS,LWS,72783,Lewiston,ID,US,46.39,-117.02,438,6,klws
 KJAY,JAY,,Jay Peak,VT,US,44.94,-72.51,572,8,jayv
 CYAH,YAH,71823,La Grande Iv,QB,CA,53.76,-73.67,306,5,cyah
 PANC,ANC,70273,Anchorage Intl,AK,US,61.17,-150.0,38,5,panc
-,HBR,74546,Hillsboro Profiler,KS,US,38.31,-97.3,447,8,p#g
+,,74546,Hillsboro Profiler,KS,US,38.31,-97.3,447,8,p#g
 PAMC,MCG,70231,McGrath,AK,US,62.95,-155.61,103,5,pamc
 KMKC,MKC,,Kansas City Downtown,MO,US,39.12,-94.6,227,1,kmkc
 ,,,b#6,,,25.9,-93.6,0,7,b#6
@@ -1533,7 +1533,7 @@ KSYR,SYR,72519,Syracuse,NY,US,43.12,-76.12,127,3,ksyr
 ,,,000345,,,42.8,-109.81,2163,7,000345
 KAXN,AXN,,Alexandria,MN,US,45.87,-95.41,433,3,kaxn
 ,,,uhaz,,,64.73,177.5,5,7,uhaz
-,,,Fort Peck,MT,US,48.31,-105.1,634,7,fpk
+,,,Fort Peck,MT,US,48.31,-105.09,634,7,fpk
 ,,,s#6,,,25.0,-115.0,0,7,s#6
 KALI,ALI,,Alice Intl,TX,US,27.74,-98.04,53,6,kali
 KCIC,CIC,72497,Chico,CA,US,39.79,-121.85,73,7,kcic

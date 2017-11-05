@@ -166,7 +166,7 @@ class plotText(backgroundText):
         if len(idx) == 0:
             self.skewt_pcl = 0
         else:
-            self.skewt_pcl = idx
+            self.skewt_pcl = idx[0]
 
     def mouseDoubleClickEvent(self, e):
         self.w.show()
@@ -254,8 +254,6 @@ class plotText(backgroundText):
         self.pcl_cin_hi_color = QtGui.QColor(prefs['pcl_cin_hi_color'])
         self.pcl_cin_md_color = QtGui.QColor(prefs['pcl_cin_md_color'])
         self.pcl_cin_lo_color = QtGui.QColor(prefs['pcl_cin_lo_color'])
-
-        self.use_left = prefs['calc_vector'] == 'Left Mover'
 
         if update_gui:
             self.clearData()
@@ -353,12 +351,14 @@ class plotText(backgroundText):
             stp_cin = tab.utils.FLOAT2STR( self.prof.right_stp_cin, 1 )
             scp = tab.utils.FLOAT2STR( self.prof.right_scp, 1 )
 
-        # Coloring provided by Rich Thompson (SPC)
+        # Coloring thresholds provided by Rich Thompson (SPC)
         labels = ['Supercell = ', 'STP (cin) = ', 'STP (fix) = ', 'SHIP = ']
         indices = [scp, stp_cin, stp_fixed, ship]
         for label, index in zip(labels,indices):
             rect = QtCore.QRect(x1*7, y1, x1*8, self.label_height)
-            if label == labels[0]: # STP uses a different color scale
+            if index == '--':
+                pen = QtGui.QPen(color_list[0], 1, QtCore.Qt.SolidLine)
+            elif label == labels[0]: # STP uses a different color scale
                 if float(index) >= 19.95:
                     pen = QtGui.QPen(color_list[5], 1, QtCore.Qt.SolidLine)
                 elif float(index) >= 11.95:

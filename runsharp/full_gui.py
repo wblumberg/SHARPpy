@@ -63,13 +63,14 @@ class crasher(object):
         def doCrasher(*args, **kwargs):
             try:
                 ret = func(*args, **kwargs)
-            except:
+            except Exception,e:
                 ret = None
                 msg = "Well, this is embarrassing.\nSHARPpy broke. This is probably due to an issue with one of the data source servers, but if it keeps happening, send the detailed information to the developers."
                 data = "SHARPpy v%s %s\n" % (__version__, __version_name__) + \
                        "Crash time: %s\n" % str(date.datetime.now()) + \
                        traceback.format_exc()
-
+                print "Exception:", e
+                # HERE IS WHERE YOU CAN CATCH A DATAQUALITYEXCEPTION
                 if frozenutils.isFrozen():
                     msg1, msg2 = msg.split("\n")
 
@@ -86,6 +87,7 @@ class crasher(object):
                     print "Detailed Information:"
                     print data
 
+                # Check the flag that indicates if the program should exit when it crashes
                 if self._exit:
                     sys.exit(1)
             return ret
@@ -479,8 +481,6 @@ class Picker(QWidget):
         :return:
         """
 
-        profs = []
-        dates = []
         failure = False
 
         exc = ""
@@ -494,11 +494,8 @@ class Picker(QWidget):
             prof_collection, stn_id = self.loadArchive(filename)
             warnings.warn("\tSuccessfully loaded the profile collection for this file...")
             disp_name = stn_id
-            prof_idx = range(len(dates))
 
             run = prof_collection.getCurrentDate()
-            fhours = None
-            observed = True
         else:
             warnings.warn("\tLoading a real-time data stream...")
 
@@ -507,25 +504,25 @@ class Picker(QWidget):
             disp_name = self.disp_name
             run = self.run
             model = self.model
-            observed = self.data_sources[model].isObserved()
 
             if self.data_sources[model].getForecastHours() == [ 0 ]:
                 prof_idx = [ 0 ]
 
             warnings.warn("\tProgram is going to load the data...")
             ret = loadData(self.data_sources[model], self.loc, run, prof_idx, ntry=ntry)
-
+           
+            # failure variable makes sure the data actually exists online. 
             if isinstance(ret[0], Exception):
                 exc = ret[0]
                 print exc
                 failure = True
                 warnings.warn("\tThere was a problem with loadData() in obtaining the data from the Internet.")
-
+                print "Failure"
             else:
+                print "Pass"
                 prof_collection = ret[0]
-
-            fhours = [ "F%03d" % fh for idx, fh in enumerate(self.data_sources[self.model].getForecastHours()) if idx in prof_idx ]
-
+        
+        # If the observed or model profile (not Archive) successfully loaded) 
         if not failure:
             prof_collection.setMeta('model', model)
             prof_collection.setMeta('run', run)
@@ -534,7 +531,7 @@ class Picker(QWidget):
             prof_collection.setMeta('observed', observed)
             print "OBSERVED?",observed
 
-            if not observed:
+            if not prof_collection.getMeta('observed'):
                 # If it's not an observed profile, then generate profile objects in background.
                 prof_collection.setAsync(Picker.async)
 
@@ -555,6 +552,7 @@ class Picker(QWidget):
             print "adding profile collection..."
             self.skew.addProfileCollection(prof_collection)
         else:
+            print "There was an exception:", exc
             raise exc
 
     def skewAppClosed(self):
@@ -577,7 +575,7 @@ class Picker(QWidget):
         """
         Get the archive sounding based on the user's selections.
         Also reads it using the Decoders and gets both the stationID and the profile objects
-        for that archive sounding.
+        for that archive sounding.  Tries a variety of decoders available to the program.
         """
 
         for decname, deccls in getDecoders().iteritems():
@@ -591,6 +589,7 @@ class Picker(QWidget):
         if dec is None:
             raise IOError("Could not figure out the format of '%s'!" % filename)
 
+        # Returns the set of profiles from the file that are from the "Profile" class.
         profs = dec.getProfiles()
         stn_id = dec.getStnId()
 
@@ -622,9 +621,10 @@ def loadData(data_source, loc, run, indexes, ntry=0, __text__=None, __prog__=Non
 
     if __text__ is not None:
         __text__.emit("Creating Profiles")
-
+    
     profs = dec.getProfiles(indexes=indexes)
     print "Showing profiles:", profs
+    print profs
     return profs
 
 class Main(QMainWindow):

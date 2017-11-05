@@ -322,6 +322,7 @@ class SPCWidget(QWidget):
             pc_idx = self.prof_ids.index(prof_id)
         except ValueError:
             print "Hmmm, that profile doesn't exist to be removed ..."
+            return
 
         prof_col = self.prof_collections.pop(pc_idx)
         self.prof_ids.pop(pc_idx)
@@ -381,6 +382,9 @@ class SPCWidget(QWidget):
         self.sound.setParcel(parcel)
         self.storm_slinky.setParcel(parcel)
 
+        deviant = 'right' if self.default_prof.latitude >= 0 else 'left'
+        self.toggleVector(deviant)
+
     @Slot(tab.params.Parcel)
     def updateParcel(self, pcl):
 
@@ -403,7 +407,7 @@ class SPCWidget(QWidget):
 
         match_col.setMeta('model', 'Analog')
         match_col.setMeta('run', prof_col.getCurrentDate())
-        match_col.setMeta('fhour', None)
+        match_col.setMeta('base_time', prof_col.getCurrentDate())
         match_col.setMeta('observed', True)
         match_col.setMeta('filematch', filematch)
         match_col.setAnalogToDate(prof_col.getCurrentDate())
@@ -828,10 +832,11 @@ class SPCWindow(QMainWindow):
             self.spc_widget.addProfileCollection(prof_col, menu_name, focus=focus)
         except Exception as exc:
             ### TODO: This may be a good place to output a copy of the offending data (useful for debugging observed data).
-            import traceback
-            print traceback.format_exc()
-           
-            self.rmProfileCollection(menu_name)
+            if len(self.menu_items) == 1:
+                self.focusPicker()
+                self.close()
+            else:
+                self.rmProfileCollection(menu_name)
             raise
 
     @Slot(str)
