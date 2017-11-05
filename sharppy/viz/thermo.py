@@ -555,7 +555,6 @@ class plotText(backgroundText):
         pcl_index = 0
         for i, text in enumerate(texts):
             self.bounds[i,0] = y1
-            print self.skewt_pcl, type(self.skewt_pcl)
             if text == self.pcl_types[self.skewt_pcl]:
                 pen = QtGui.QPen(self.pcl_sel_color, 1, QtCore.Qt.SolidLine)
                 qp.setPen(pen)

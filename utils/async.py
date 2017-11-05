@@ -32,7 +32,7 @@ class AsyncThreads(QObject):
         *args, **kwargs: Arguments to func()
         """
         thd_id = self._genThreadId()
-        print func, args
+        print "Function being posted by Async:", func, args
 
         background = kwargs.get('background', False)
         if 'background' in kwargs:

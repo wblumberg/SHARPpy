@@ -482,7 +482,8 @@ class Picker(QWidget):
         """
 
         failure = False
-
+        profs = []
+        dates = []
         exc = ""
 
         ## if the profile is an archived file, load the file from
@@ -496,6 +497,8 @@ class Picker(QWidget):
             disp_name = stn_id
 
             run = prof_collection.getCurrentDate()
+            fhours = None
+            observed = True
         else:
             warnings.warn("\tLoading a real-time data stream...")
 
@@ -504,6 +507,7 @@ class Picker(QWidget):
             disp_name = self.disp_name
             run = self.run
             model = self.model
+            observed = self.data_sources[model].isObserved()
 
             if self.data_sources[model].getForecastHours() == [ 0 ]:
                 prof_idx = [ 0 ]
@@ -517,11 +521,13 @@ class Picker(QWidget):
                 print exc
                 failure = True
                 warnings.warn("\tThere was a problem with loadData() in obtaining the data from the Internet.")
-                print "Failure"
             else:
-                print "Pass"
+                print "Data was found and successfully decoded!"
                 prof_collection = ret[0]
-        
+
+            fhours = ["F%03d" % fh for idx, fh in enumerate(self.data_sources[self.model].getForecastHours()) if
+                          idx in prof_idx]
+
         # If the observed or model profile (not Archive) successfully loaded) 
         if not failure:
             prof_collection.setMeta('model', model)

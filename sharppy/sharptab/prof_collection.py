@@ -61,6 +61,7 @@ class ProfCollection(object):
         max_procs:  max number of processors to perform this action
         """
         pipe = Queue(max_procs)
+        strictQC = False
 
         for idx, prof in enumerate(self._profs[member]):
             proc = Process(target=doCopy, args=(self._target_type, prof, idx, strictQC, pipe))
