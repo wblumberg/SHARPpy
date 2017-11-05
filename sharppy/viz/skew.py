@@ -90,12 +90,12 @@ class backgroundSkewT(QtWidgets.QWidget):
 
         qp.setRenderHint(qp.Antialiasing)
         qp.setRenderHint(qp.TextAntialiasing)
+        self.draw_frame(qp)
         for t in np.arange(self.bltmpc-100, self.brtmpc+self.dt, self.dt):
             self.draw_isotherm(t, qp)
         #for tw in range(self.bltmpc, self.brtmpc, 10): self.draw_moist_adiabat(tw, qp)
         for theta in np.arange(self.bltmpc, 80, 20): self.draw_dry_adiabat(theta, qp)
         for w in [2] + np.arange(4, 33, 4): self.draw_mixing_ratios(w, 600, qp)
-        self.draw_frame(qp)
         for p in [1000, 850, 700, 500, 300, 200, 100]:
             self.draw_isobar(p, 1, qp)
         for t in np.arange(self.bltmpc, self.brtmpc+self.dt, self.dt):
@@ -149,7 +149,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         '''
         Draw the given moist adiabat.
         '''
-        logging.debug("Drawing dry adiabats.")
+        logging.debug("Drawing dry adiabat: " + str(theta))
         qp.setClipping(True)
         pen = QtGui.QPen(self.adiab_color, 1)
         pen.setStyle(QtCore.Qt.SolidLine)
@@ -194,7 +194,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Draw the mixing ratios.
 
         '''
-        logging.debug("Draw the water vapor mixing ratio lines.")
+        logging.debug("Draw the water vapor mixing ratio line: " + str(w))
         qp.setClipping(True)
         t = tab.thermo.temp_at_mixrat(w, self.pmax)
         x1 = self.originx + self.tmpc_to_pix(t, self.pmax) / self.scale
@@ -243,7 +243,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Add Isotherm Labels.
 
         '''
-        logging.debug("Drawing isotherm labels:")
+        logging.debug("Drawing isotherm label: " + str(t))
         pen = QtGui.QPen(self.fg_color)
         self.label_font.setBold(True)
         qp.setFont(self.label_font)
@@ -260,7 +260,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Draw background isotherms.
 
         '''
-        logging.debug("Drawing background isotherms")
+        logging.debug("Drawing background isotherms: " + str(t))
 
         qp.setClipping(True)
         x1 = self.originx + self.tmpc_to_pix(t, self.pmax) / self.scale
@@ -281,7 +281,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Draw background isobars.
 
         '''
-        logging.debug("Drawing background isotherms.")
+        logging.debug("Drawing background isobar: " + str(p) + ' flag: ' + str(flag))
         pen = QtGui.QPen(self.fg_color, 1, QtCore.Qt.SolidLine)
         qp.setPen(pen)
         self.label_font.setBold(True)
@@ -1020,7 +1020,7 @@ class plotSkewT(backgroundSkewT):
             bg_color_idx = (bg_color_idx + 1) % len(self.background_colors)
 
     def draw_height(self, h, qp):
-        logging.debug("Drawing the height markers.")
+        logging.debug("Drawing the height marker: " + str(h))
         qp.setClipping(True)
         pen = QtGui.QPen(QtCore.Qt.red, 1, QtCore.Qt.SolidLine)
         qp.setPen(pen)

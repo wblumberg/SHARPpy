@@ -2276,6 +2276,7 @@ def parcelx_rdj(prof, pbot=None, ptop=None, dp=-1, **kwargs):
                 te2 = envTv[wetlift_idx]
                 tp2 = pseudo[wetlift_idx]
                 h2 = hght[wetlift_idx]
+                h3 = hght[wetlift_idx - 1]
                 tdef3 = (thermo.virtemp(pe3, tp3, tp3) - te3) / \
                         thermo.ctok(te3)
                 tdef2 = (thermo.virtemp(pe2, tp2, tp2) - te2) / \
