@@ -3430,6 +3430,7 @@ def dcape(prof, method='bolton'):
 
     # To keep track of the parcel trace from the downdraft
     ttrace = [tp1]
+    ptrace = [pe1]
 
     # Lower the parcel to the surface moist adiabatically and compute
     # total energy (DCAPE)

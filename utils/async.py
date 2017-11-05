@@ -6,6 +6,7 @@ import Queue
 import hashlib
 from datetime import datetime
 import traceback
+import logging
 
 class AsyncThreads(QObject):
     """
@@ -32,7 +33,7 @@ class AsyncThreads(QObject):
         *args, **kwargs: Arguments to func()
         """
         thd_id = self._genThreadId()
-        print "Function being posted by Async:", func, args
+        logging.debug("Function being posted by Async: " + str(func) + ' ' + str(args))
 
         background = kwargs.get('background', False)
         if 'background' in kwargs:

@@ -10,6 +10,7 @@ from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 from PySide2.QtOpenGL import *
 from utils.utils import total_seconds
+import logging
 
 from datetime import datetime, timedelta
 
@@ -26,6 +27,8 @@ class backgroundSkewT(QtWidgets.QWidget):
         Initialize the User Interface.
 
         '''
+        logging.debug("Initalizing the backgroundSkewT.")
+
         self.lpad = 30; self.rpad = 65
         self.tpad = 20; self.bpad = 20
         self.tlx = self.rpad; self.tly = self.tpad
@@ -72,6 +75,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         self.plotBackground()
     
     def plotBackground(self):
+        logging.debug("Plotting the background of skew.py")
         qp = QtGui.QPainter()
         qp.begin(self.plotBitMap)
         qp.setClipRect(self.clip)
@@ -145,6 +149,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         '''
         Draw the given moist adiabat.
         '''
+        logging.debug("Drawing dry adiabats.")
         qp.setClipping(True)
         pen = QtGui.QPen(self.adiab_color, 1)
         pen.setStyle(QtCore.Qt.SolidLine)
@@ -168,6 +173,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Draw the given moist adiabat.
 
         '''
+        logging.debug("Drawing moist adiabats.")
         pen = QtGui.QPen(QtGui.QColor("#663333"), 1)
         pen.setStyle(QtCore.Qt.SolidLine)
         qp.setPen(pen)
@@ -188,6 +194,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Draw the mixing ratios.
 
         '''
+        logging.debug("Draw the water vapor mixing ratio lines.")
         qp.setClipping(True)
         t = tab.thermo.temp_at_mixrat(w, self.pmax)
         x1 = self.originx + self.tmpc_to_pix(t, self.pmax) / self.scale
@@ -213,6 +220,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Draw the frame around the Skew-T.
 
         '''
+        logging.debug("Drawing frame around the Skew-T.")
         qp.setClipping(False)
         pen = QtGui.QPen(self.bg_color, 0, QtCore.Qt.SolidLine)
         brush = QtGui.QBrush(self.bg_color, QtCore.Qt.SolidPattern)
@@ -235,6 +243,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Add Isotherm Labels.
 
         '''
+        logging.debug("Drawing isotherm labels:")
         pen = QtGui.QPen(self.fg_color)
         self.label_font.setBold(True)
         qp.setFont(self.label_font)
@@ -251,6 +260,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Draw background isotherms.
 
         '''
+        logging.debug("Drawing background isotherms")
 
         qp.setClipping(True)
         x1 = self.originx + self.tmpc_to_pix(t, self.pmax) / self.scale
@@ -271,6 +281,7 @@ class backgroundSkewT(QtWidgets.QWidget):
         Draw background isobars.
 
         '''
+        logging.debug("Drawing background isotherms.")
         pen = QtGui.QPen(self.fg_color, 1, QtCore.Qt.SolidLine)
         qp.setPen(pen)
         self.label_font.setBold(True)
@@ -337,6 +348,7 @@ class plotSkewT(backgroundSkewT):
     reset = Signal(list)
 
     def __init__(self, **kwargs):
+        logging.debug("Initializing plotSkewT.")
         self.bg_color = QtGui.QColor(kwargs.get('bg_color', '#000000'))
         self.fg_color = QtGui.QColor(kwargs.get('fg_color', '#FFFFFF'))
         self.isotherm_color = QtGui.QColor(kwargs.get('isotherm_color', '#555555'))
@@ -495,6 +507,8 @@ class plotSkewT(backgroundSkewT):
         self.popupmenu.addAction(reset)
 
     def getPlotTitle(self, prof_coll):
+        logging.debug("Calling getPlotTitle")
+
         modified = prof_coll.isModified() or prof_coll.isInterpolated()
         modified_str = "; Modified" if modified else ""
 
@@ -542,12 +556,15 @@ class plotSkewT(backgroundSkewT):
         self.parcel.emit(usrpcl) # Emit a signal that a new profile has been created
 
     def addProfileCollection(self, prof_coll):
+        logging.debug("Adding profile collection:" + str(prof_coll))
         self.prof_collections.append(prof_coll)
 
     def rmProfileCollection(self, prof_coll):
+        logging.debug("Removing profile collection:" + str(prof_coll))
         self.prof_collections.remove(prof_coll)
 
     def setActiveCollection(self, pc_idx, **kwargs):
+        logging.debug("Setting the active collection to the Skew-T...")
         self.pc_idx = pc_idx
         prof = self.prof_collections[pc_idx].getHighlightedProf()
         self.plot_omega = not self.prof_collections[pc_idx].getMeta('observed')
@@ -577,6 +594,7 @@ class plotSkewT(backgroundSkewT):
             self.update()
 
     def setParcel(self, parcel):
+        logging.debug("Setting the parcel: " + str(parcel))
         self.pcl = parcel
 
         self.clearData()
@@ -586,6 +604,7 @@ class plotSkewT(backgroundSkewT):
         self.update()
 
     def setDGZ(self, flag):
+        logging.debug("PlotDGZ Flag: " + str(flag))
         self.plotdgz = flag
 
         self.clearData()
@@ -656,6 +675,7 @@ class plotSkewT(backgroundSkewT):
         return min(xs[idx], x),  y
 
     def mouseReleaseEvent(self, e):
+        logging.debug("Releasing the mouse in skew-T.")
         if self.prof is None:
             return
 
@@ -681,6 +701,7 @@ class plotSkewT(backgroundSkewT):
         self.was_right_click = False
 
     def mousePressEvent(self, e):
+        logging.debug("Pressing the mouse in the skew-T.")
         if self.prof is None:
             return
 
@@ -750,6 +771,7 @@ class plotSkewT(backgroundSkewT):
         self.cursor_move.emit(hgt)
 
     def setReadoutCursor(self):
+        logging.debug("Turning on the readout cursor.")
         self.parcelmenu.setEnabled(True)
         self.readout = True
         self.track_cursor = True
@@ -765,6 +787,7 @@ class plotSkewT(backgroundSkewT):
         self.parentWidget().setFocus()
 
     def setNoCursor(self):
+        logging.debug("Turning off the readout cursor.")
         self.parcelmenu.setEnabled(False)
         self.readout = False
         self.track_cursor = False
@@ -784,6 +807,7 @@ class plotSkewT(backgroundSkewT):
         Resize the plot based on adjusting the main window.
 
         '''
+        logging.debug("Resizing the Skew-T")
         super(plotSkewT, self).resizeEvent(e)
         self.plotData()
 
@@ -791,6 +815,7 @@ class plotSkewT(backgroundSkewT):
         pass
 
     def showCursorMenu(self, pos):
+        logging.debug("Displaying the cursor menu.")
         if self.cursor_loc is None or self.track_cursor:
             self.cursor_loc = pos
         self.popupmenu.popup(self.mapToGlobal(pos))
@@ -812,6 +837,7 @@ class plotSkewT(backgroundSkewT):
         self.plotData()
 
     def paintEvent(self, e):
+        logging.debug("Calling paintEvent.")
         super(plotSkewT, self).paintEvent(e)
         qp = QtGui.QPainter()
         qp.begin(self)
@@ -823,6 +849,7 @@ class plotSkewT(backgroundSkewT):
         Handles the clearing of the pixmap
         in the frame.
         '''
+        logging.debug("Clearing the data from the Skew-T.")
         self.plotBitMap = self.backgroundBitMap.copy(0, 0, self.width(), self.height())
         for drag in [ self.drag_dwpc, self.drag_tmpc ]:
             if drag is not None:
@@ -833,6 +860,7 @@ class plotSkewT(backgroundSkewT):
         Plot the data used in a Skew-T.
 
         '''
+        logging.debug("Plotting the data on the Skew-T")
         if self.prof is None:
             return
 
@@ -919,6 +947,7 @@ class plotSkewT(backgroundSkewT):
         qp.end()
 
     def drawBarbs(self, prof, qp, color=None):
+        logging.debug("Drawing the wind barbs on the Skew-T.")
         if color is None:
             color = self.fg_color
 
@@ -963,6 +992,7 @@ class plotSkewT(backgroundSkewT):
         qp.setClipRect(self.clip)
 
     def drawTitles(self, qp):
+        logging.debug("Drawing the titles on the Skew-T")
         box_width = 150
 
         cur_dt = self.prof_collections[self.pc_idx].getCurrentDate()
@@ -990,6 +1020,7 @@ class plotSkewT(backgroundSkewT):
             bg_color_idx = (bg_color_idx + 1) % len(self.background_colors)
 
     def draw_height(self, h, qp):
+        logging.debug("Drawing the height markers.")
         qp.setClipping(True)
         pen = QtGui.QPen(QtCore.Qt.red, 1, QtCore.Qt.SolidLine)
         qp.setPen(pen)
@@ -1006,6 +1037,7 @@ class plotSkewT(backgroundSkewT):
                 tab.utils.INT2STR(h/1000)+' km')
 
     def draw_sig_levels(self, qp, plevel=1000, color=None):
+        logging.debug("Drawing singificant levels.")
         if color is None:
             color = self.fg_color
 
@@ -1026,6 +1058,7 @@ class plotSkewT(backgroundSkewT):
         qp.drawText(rect1, QtCore.Qt.TextDontClip | QtCore.Qt.AlignLeft, tab.utils.INT2STR(z) + '\'')
          
     def draw_pbl_level(self, qp):
+        logging.debug("Drawing the PBL top marker.")
         if self.prof is not None:
             qp.setClipping(True)
             xbounds = [37,41]
@@ -1040,6 +1073,7 @@ class plotSkewT(backgroundSkewT):
                 qp.drawText(rect1, QtCore.Qt.TextDontClip | QtCore.Qt.AlignCenter, "PBL")
 
     def draw_parcel_levels(self, qp):
+        logging.debug("Drawing the parcel levels (LCL, LFC, EL).")
         if self.pcl is None:
             return
         qp.setClipping(True)
@@ -1091,6 +1125,7 @@ class plotSkewT(backgroundSkewT):
             return x1_0
 
     def draw_omega_profile(self, qp):
+        logging.debug("Drawing the omega profile.")
         qp.setClipping(True)
         plus10_bound = -49
         minus10_bound = -41
@@ -1139,6 +1174,7 @@ class plotSkewT(backgroundSkewT):
         '''
         Draw the bounds of the effective inflow layer.
         '''
+        logging.debug("Drawing the effective inflow layer.")
         qp.setClipping(True)
         ptop = self.prof.etop; pbot = self.prof.ebottom
         len = 15
@@ -1192,6 +1228,7 @@ class plotSkewT(backgroundSkewT):
         '''
         Draw a parcel trace.
         '''
+        logging.debug("Drawing the virtual parcel trace.")
         if color is None:
             color = self.fg_color
 
@@ -1219,6 +1256,7 @@ class plotSkewT(backgroundSkewT):
         Draw an environmental trace.
 
         '''
+        logging.debug("Drawing an environmental profile trace.")
         qp.setClipping(True)
         pen = QtGui.QPen(QtGui.QColor(color), width, style)
         pen.setWidth(width)

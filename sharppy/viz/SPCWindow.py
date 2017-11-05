@@ -1,5 +1,6 @@
 __author__ = 'keltonhalbert, wblumberg'
 
+import logging
 from sharppy.viz import plotSkewT, plotHodo, plotText, plotAnalogues
 from sharppy.viz import plotThetae, plotWinds, plotSpeed, plotKinematics #, plotGeneric
 from sharppy.viz import plotSlinky, plotWatch, plotAdvection, plotSTP, plotWinter
@@ -73,6 +74,7 @@ class SPCWidget(QWidget):
         super(SPCWidget, self).__init__(parent=parent)
         """
         """
+        logging.debug("Initializing SPCWidget.")
         ## these are the keyword arguments used to define what
         ## sort of profile is being viewed
         self.prof_collections = []
@@ -214,6 +216,7 @@ class SPCWidget(QWidget):
             return "USER"
 
     def saveimage(self):
+        logging.debug("Save an image of the SPCWindow to the disk.")
         path = self.config['paths', 'save_img']
         file_types = "PNG (*.png)"
         file_name, result = QFileDialog.getSaveFileName(self, "Save Image", path, file_types)
@@ -227,6 +230,7 @@ class SPCWidget(QWidget):
         pixmap.save(file_name, fmt, 100)
 
     def savetext(self):
+        logging.debug("Save the data to the disk.")
         path = self.config['paths', 'save_txt']
         file_types = "TXT (*.txt)"
         file_name, result = QFileDialog.getSaveFileName(self, "Save Sounding Text", path, file_types)
@@ -240,7 +244,7 @@ class SPCWidget(QWidget):
         This gets initially called by __init__
         :return:
         """
-
+        logging.debug("Initializing all widgets in the SPCWindow.")
         self.sound = plotSkewT(dgz=self.dgz, pbl=self.pbl)
 #       self.sound.setPreferences(temp_color=temp_color, dewp_color=dewp_color, update_gui=False)
         self.hodo = plotHodo()
@@ -282,6 +286,7 @@ class SPCWidget(QWidget):
         self.insets["SARS"].updatematch.connect(self.updateSARS)
 
     def addProfileCollection(self, prof_col, prof_id, focus=True):
+        logging.debug("Adding a Profile Collection to SPCWindow.")
         self.prof_collections.append(prof_col)
         self.prof_ids.append(prof_id)
         self.sound.addProfileCollection(prof_col)
@@ -304,6 +309,7 @@ class SPCWidget(QWidget):
 
     @Slot(str)
     def setProfileCollection(self, prof_id):
+        logging.debug("Setting the Profile Collection to SPCWindow.")
         try:
             self.pc_idx = self.prof_ids.index(prof_id)
         except ValueError:
@@ -318,6 +324,7 @@ class SPCWidget(QWidget):
         self.updateProfs()
 
     def rmProfileCollection(self, prof_id):
+        logging.debug("Removing Profile Collection from SPCWindow.")
         try:
             pc_idx = self.prof_ids.index(prof_id)
         except ValueError:
@@ -358,6 +365,7 @@ class SPCWidget(QWidget):
         return self.prof_collections[self.pc_idx].isInterpolated()
 
     def updateProfs(self):
+        logging.debug("UpdateProfs")
         prof_col = self.prof_collections[self.pc_idx]
         self.default_prof = prof_col.getHighlightedProf()
 
@@ -387,6 +395,7 @@ class SPCWidget(QWidget):
 
     @Slot(tab.params.Parcel)
     def updateParcel(self, pcl):
+        logging.debug("Update the Parcel")
 
         self.parcel_type = self.getParcelName(self.default_prof, pcl)
 
@@ -425,6 +434,7 @@ class SPCWidget(QWidget):
 
     @Slot(Config)
     def updateConfig(self, config, update_gui=True):
+        logging.debug("Updating the SHARPpy GUI configuration.")
         self.config = config
         prefs = dict( (field, value) for (section, field), value in config if section == 'preferences')
 
@@ -531,6 +541,7 @@ class SPCWidget(QWidget):
         self.hodo.setAllObserved(self.coll_observed)
 
     def loadWidgets(self):
+        logging.debug("Load the widgets to the SPCWindow.")
         ## add the upper-right window insets
         self.grid2.addWidget(self.speed_vs_height, 0, 0, 11, 3)
         self.grid2.addWidget(self.inferred_temp_advection, 0, 3, 11, 2)
@@ -600,6 +611,7 @@ class SPCWidget(QWidget):
             self.insets['SARS'].clearSelection()
 
     def swapProfCollections(self):
+        logging.debug("Swapping a profile collection.")
         # See if we have any other observed profiles loaded at this time.
         prof_col = self.prof_collections[self.pc_idx]
         dt = prof_col.getCurrentDate()
@@ -621,6 +633,7 @@ class SPCWidget(QWidget):
             self.insets['SARS'].clearSelection()
 
     def closeEvent(self, e):
+        logging.debug("SPCWindow closeEvent:" + str(e))
         self.sound.closeEvent(e)
 
         for prof_coll in self.prof_collections:
@@ -654,6 +667,7 @@ class SPCWidget(QWidget):
             self.setFocus()
 
     def swapInset(self):
+        logging.debug("Swapping an inset.")
         ## This will swap either the left or right inset depending on whether or not the
         ## self.inset_to_swap value is LEFT or RIGHT.
         a = self.menu_ag.checkedAction()
@@ -718,7 +732,7 @@ class SPCWindow(QMainWindow):
     def __init__(self, **kwargs):
         parent = kwargs.get('parent', None)
         super(SPCWindow, self).__init__(parent=parent)
-
+        logging.debug("Initialize SPCWindow...")
         self.menu_items = []
         self.picker_window = parent
         self.__initUI(**kwargs)
@@ -748,6 +762,7 @@ class SPCWindow(QMainWindow):
         self.raise_()
 
     def createMenuBar(self):
+        logging.debug("Creating the SPCWindow Menu Bar.")
         bar = self.menuBar()
         filemenu = bar.addMenu("File")
 
@@ -787,6 +802,7 @@ class SPCWindow(QMainWindow):
         self.remove_mapper.mapped[str].connect(self.rmProfileCollection)
 
     def createProfileMenu(self, prof_col):
+        logging.debug("Creating the SPCWindow Profile Menu.")
         menu_name = self.createMenuName(prof_col)
         prof_menu = self.profilemenu.addMenu(menu_name)
 
@@ -811,6 +827,7 @@ class SPCWindow(QMainWindow):
             mitem.menuAction().setVisible(False)
 
     def addProfileCollection(self, prof_col, focus=True):
+        logging.debug("Adding a Profile Collection to SPCWindow.")
         menu_name = self.createMenuName(prof_col)
         if any( mitem.title() == menu_name and mitem.menuAction().isVisible() for mitem in self.menu_items ):
             self.spc_widget.setProfileCollection(menu_name)
@@ -841,6 +858,7 @@ class SPCWindow(QMainWindow):
 
     @Slot(str)
     def rmProfileCollection(self, menu_name):
+        logging.debug("Removing a Profile Collection to SPCWindow.")
         self.removeProfileMenu(menu_name)
         self.spc_widget.rmProfileCollection(menu_name)
 
@@ -872,10 +890,13 @@ class SPCWindow(QMainWindow):
             self.focusPicker()
 
     def closeEvent(self, e):
+        logging.debug("closeEvent.")
+
         self.spc_widget.closeEvent(e)
         self.closed.emit()
 
     def closeIfEmpty(self):
+        logging.debug("Calling closeIfEmpty().")
         visible_mitems = [ mitem for mitem in self.menu_items if mitem.menuAction().isVisible() ]
         if len(visible_mitems) < 1:
             self.close()
@@ -908,6 +929,8 @@ class SPCWindow(QMainWindow):
         self.update()
 
     def focusPicker(self):
+        logging.debug("Focusing on SHARPpy Picker.")
+
         if self.picker_window is not None:
             self.picker_window.activateWindow()
             self.picker_window.setFocus()
