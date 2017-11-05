@@ -4,19 +4,12 @@ from sharppy.sharptab.constants import *
 from sharppy.sharptab.profile import Profile, create_profile
 from sharppy.viz.draggable import Draggable
 from sharppy.viz.barbs import drawBarb
-<<<<<<< HEAD
 from PySide2 import QtGui, QtCore, QtWidgets
 from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 from PySide2.QtCore import *
 from PySide2.QtOpenGL import *
-=======
-from PySide import QtGui, QtCore
-from PySide.QtGui import *
-from PySide.QtCore import *
-from PySide.QtOpenGL import *
 from utils.utils import total_seconds
->>>>>>> aede68cc38135164a9c2b8c851e0a42a428a69db
 
 from datetime import datetime, timedelta
 
