@@ -739,11 +739,24 @@ class SPCWindow(QMainWindow):
 
     def __initUI(self, **kwargs):
         kwargs['parent'] = self
+        ## handle the attribute of the main window
+
         self.spc_widget = SPCWidget(**kwargs)
+
         self.parent().config_changed.connect(self.spc_widget.updateProfs)
         self.parent().config_changed.connect(self.updateConfig)
         self.setCentralWidget(self.spc_widget)
+
         self.createMenuBar()
+
+        logging.debug("Determining system platform to resize the window.")
+        # I think setGeometry() is what calls the resizeEvent() and causes the background to be drawn twice upon load.
+        # TODO: Somewhere after this gets called, a resize event gets called.  Figure out a way around it.
+
+        if platform.system() == 'Windows':
+            self.setGeometry(10,30,1180,800)
+        else:
+            self.setGeometry(0, 0, 1180, 800)
 
         title = 'SHARPpy: Sounding and Hodograph Analysis and Research Program '
         title += 'in Python'
@@ -751,12 +764,6 @@ class SPCWindow(QMainWindow):
 
         bg_hex = self.spc_widget.config['preferences', 'bg_color']
         self.setStyleSheet("QMainWindow { background-color: " + bg_hex + "; }")
-        
-        ## handle the attribute of the main window
-        if platform.system() == 'Windows':
-            self.setGeometry(10,30,1180,800)
-        else:
-            self.setGeometry(0, 0, 1180, 800)
 
         self.show()
         self.raise_()
